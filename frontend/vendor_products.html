@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Products</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+
+        :root {
+            --primary: #2d6a4f;
+            --secondary: #d8f3dc;
+            --bg: #fff;
+            --text: #1b4332;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            background: rgba(255, 255, 255, 0.95);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            margin-left: 20px;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            padding: 40px 20px;
+            background: #f8f9fa;
+        }
+
+        .page-header h2 {
+            margin: 0;
+            color: var(--primary);
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+        }
+
+        .page-header p {
+            color: #666;
+            margin-top: 10px;
+        }
+
+        /* Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            padding: 40px 5%;
+        }
+
+        .product-card {
+            border-radius: 16px;
+            background: white;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .product-img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .product-price {
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .add-cart-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo">Heart Leaf Blooms</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="vendors.html">Vendors</a>
+            <a href="cart.html">Cart</a>
+        </div>
+    </nav>
+
+    <div class="page-header" id="headerInfo">
+        <h2>Vendor Products</h2>
+        <p>Browsing collection...</p>
+    </div>
+
+    <div class="product-grid" id="productList">
+        <p style="text-align:center; width:100%">Loading products...</p>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:7071' : 'http://localhost:7071';
+        const params = new URLSearchParams(window.location.search);
+        const vendorId = params.get('id');
+        const vendorName = params.get('name'); // Optional UI enhancement
+
+        if (vendorName) {
+            document.querySelector('#headerInfo h2').innerText = vendorName;
+            document.querySelector('#headerInfo p').innerText = "Explore their unique collection regarding plants.";
+        }
+
+        const userId = localStorage.getItem('user_id');
+
+        async function loadVendorProducts() {
+            if (!vendorId) {
+                document.getElementById('productList').innerHTML = '<p>No vendor selected.</p>';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/product/vendor/${vendorId}`);
+                if (!res.ok) throw new Error('Failed');
+                const products = await res.json();
+
+                const container = document.getElementById('productList');
+                container.innerHTML = '';
+
+                if (products.length === 0) {
+                    container.innerHTML = '<p>This vendor has no products listed yet.</p>';
+                    return;
+                }
+
+                products.forEach(p => {
+                    const img = (p.images && p.images.length) ? p.images[0].img_url : 'https://via.placeholder.com/400x500';
+                    // Check if image object structure matches the seeder (large_url, vs img_url from API? Let's check API response format or assume seeder's large_url if available)
+                    // Seeder creates large_url, medium_url. API probably returns "images" relation.
+                    // Let's assume the frontend code in index.html used p.images[0].img_url, but I should check schema.
+                    // Schema has large_url, medium_url.
+                    // index.html used `p.images[0].img_url`. Wait, let me check index.html again.
+                    // index.html: `const img = (p.images && p.images.length) ? p.images[0].img_url : ...`
+                    // But schema says `large_url`. I should probably try to be robust.
+
+                    let imageUrl = 'https://via.placeholder.com/400x500';
+                    if (p.images && p.images.length > 0) {
+                        imageUrl = p.images[0].large_url || p.images[0].medium_url || p.images[0].img_url || imageUrl;
+                    }
+
+                    const el = document.createElement('div');
+                    el.className = 'product-card';
+                    el.innerHTML = `
+                        <img src="${imageUrl}" class="product-img" alt="${p.product_name}">
+                        <div class="product-info">
+                            <div class="product-name">${p.product_name}</div>
+                            <div class="product-price">₹${p.product_price}</div>
+                        </div>
+                        <button class="add-cart-btn" onclick="addToCart('${p.product_id}')">+</button>
+                    `;
+                    container.appendChild(el);
+                });
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById('productList').innerHTML = '<p>Error loading products.</p>';
+            }
+        }
+
+        async function addToCart(productId) {
+            if (!userId) {
+                alert('Please login first to shop!');
+                window.location.href = 'user_login.html';
+                return;
+            }
+            try {
+                const res = await fetch(`${API_BASE_URL}/cart/${userId}`, {
+                    method: 'POST',
+                    credentials: 'include', // Important for cookies
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product_id: productId, quantity: 1 })
+                });
+                if (res.ok) alert('Added to cart!');
+                else alert('Failed to add to cart');
+            } catch (e) { console.error(e); }
+        }
+
+        loadVendorProducts();
+    </script>
+</body>
+
+</html>

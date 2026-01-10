@@ -3252,6 +3252,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     commission_rate: Decimal | null
+    profile_image: string | null
   }
 
   export type VendorMaxAggregateOutputType = {
@@ -3272,6 +3273,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     commission_rate: Decimal | null
+    profile_image: string | null
   }
 
   export type VendorCountAggregateOutputType = {
@@ -3292,6 +3294,7 @@ export namespace Prisma {
     createdAt: number
     updatedAt: number
     commission_rate: number
+    profile_image: number
     _all: number
   }
 
@@ -3322,6 +3325,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     commission_rate?: true
+    profile_image?: true
   }
 
   export type VendorMaxAggregateInputType = {
@@ -3342,6 +3346,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     commission_rate?: true
+    profile_image?: true
   }
 
   export type VendorCountAggregateInputType = {
@@ -3362,6 +3367,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     commission_rate?: true
+    profile_image?: true
     _all?: true
   }
 
@@ -3469,6 +3475,7 @@ export namespace Prisma {
     createdAt: Date
     updatedAt: Date
     commission_rate: Decimal
+    profile_image: string | null
     _count: VendorCountAggregateOutputType | null
     _avg: VendorAvgAggregateOutputType | null
     _sum: VendorSumAggregateOutputType | null
@@ -3508,6 +3515,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     commission_rate?: boolean
+    profile_image?: boolean
     products?: boolean | Vendor$productsArgs<ExtArgs>
     orderItems?: boolean | Vendor$orderItemsArgs<ExtArgs>
     commissions?: boolean | Vendor$commissionsArgs<ExtArgs>
@@ -3533,6 +3541,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     commission_rate?: boolean
+    profile_image?: boolean
   }, ExtArgs["result"]["vendor"]>
 
   export type VendorSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3553,6 +3562,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     commission_rate?: boolean
+    profile_image?: boolean
   }, ExtArgs["result"]["vendor"]>
 
   export type VendorSelectScalar = {
@@ -3573,9 +3583,10 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     commission_rate?: boolean
+    profile_image?: boolean
   }
 
-  export type VendorOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "shopName" | "shopAddress" | "shopDescription" | "bankName" | "IFSC" | "accountNumber" | "vendorTag" | "isFeatured" | "isVerified" | "status" | "createdAt" | "updatedAt" | "commission_rate", ExtArgs["result"]["vendor"]>
+  export type VendorOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "shopName" | "shopAddress" | "shopDescription" | "bankName" | "IFSC" | "accountNumber" | "vendorTag" | "isFeatured" | "isVerified" | "status" | "createdAt" | "updatedAt" | "commission_rate" | "profile_image", ExtArgs["result"]["vendor"]>
   export type VendorInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     products?: boolean | Vendor$productsArgs<ExtArgs>
     orderItems?: boolean | Vendor$orderItemsArgs<ExtArgs>
@@ -3612,6 +3623,7 @@ export namespace Prisma {
       createdAt: Date
       updatedAt: Date
       commission_rate: Prisma.Decimal
+      profile_image: string | null
     }, ExtArgs["result"]["vendor"]>
     composites: {}
   }
@@ -4056,6 +4068,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Vendor", 'DateTime'>
     readonly updatedAt: FieldRef<"Vendor", 'DateTime'>
     readonly commission_rate: FieldRef<"Vendor", 'Decimal'>
+    readonly profile_image: FieldRef<"Vendor", 'String'>
   }
     
 
@@ -17218,7 +17231,8 @@ export namespace Prisma {
     status: 'status',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
-    commission_rate: 'commission_rate'
+    commission_rate: 'commission_rate',
+    profile_image: 'profile_image'
   };
 
   export type VendorScalarFieldEnum = (typeof VendorScalarFieldEnum)[keyof typeof VendorScalarFieldEnum]
@@ -17549,6 +17563,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Vendor"> | Date | string
     updatedAt?: DateTimeFilter<"Vendor"> | Date | string
     commission_rate?: DecimalFilter<"Vendor"> | Decimal | DecimalJsLike | number | string
+    profile_image?: StringNullableFilter<"Vendor"> | string | null
     products?: ProductListRelationFilter
     orderItems?: OrderItemListRelationFilter
     commissions?: CommissionListRelationFilter
@@ -17573,6 +17588,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     commission_rate?: SortOrder
+    profile_image?: SortOrderInput | SortOrder
     products?: ProductOrderByRelationAggregateInput
     orderItems?: OrderItemOrderByRelationAggregateInput
     commissions?: CommissionOrderByRelationAggregateInput
@@ -17600,6 +17616,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Vendor"> | Date | string
     updatedAt?: DateTimeFilter<"Vendor"> | Date | string
     commission_rate?: DecimalFilter<"Vendor"> | Decimal | DecimalJsLike | number | string
+    profile_image?: StringNullableFilter<"Vendor"> | string | null
     products?: ProductListRelationFilter
     orderItems?: OrderItemListRelationFilter
     commissions?: CommissionListRelationFilter
@@ -17624,6 +17641,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     commission_rate?: SortOrder
+    profile_image?: SortOrderInput | SortOrder
     _count?: VendorCountOrderByAggregateInput
     _avg?: VendorAvgOrderByAggregateInput
     _max?: VendorMaxOrderByAggregateInput
@@ -17652,6 +17670,7 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Vendor"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Vendor"> | Date | string
     commission_rate?: DecimalWithAggregatesFilter<"Vendor"> | Decimal | DecimalJsLike | number | string
+    profile_image?: StringNullableWithAggregatesFilter<"Vendor"> | string | null
   }
 
   export type UserWhereInput = {
@@ -18496,6 +18515,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     commission_rate?: Decimal | DecimalJsLike | number | string
+    profile_image?: string | null
     products?: ProductCreateNestedManyWithoutVendorInput
     orderItems?: OrderItemCreateNestedManyWithoutVendorInput
     commissions?: CommissionCreateNestedManyWithoutVendorInput
@@ -18520,6 +18540,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     commission_rate?: Decimal | DecimalJsLike | number | string
+    profile_image?: string | null
     products?: ProductUncheckedCreateNestedManyWithoutVendorInput
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutVendorInput
     commissions?: CommissionUncheckedCreateNestedManyWithoutVendorInput
@@ -18544,6 +18565,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     products?: ProductUpdateManyWithoutVendorNestedInput
     orderItems?: OrderItemUpdateManyWithoutVendorNestedInput
     commissions?: CommissionUpdateManyWithoutVendorNestedInput
@@ -18568,6 +18590,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     products?: ProductUncheckedUpdateManyWithoutVendorNestedInput
     orderItems?: OrderItemUncheckedUpdateManyWithoutVendorNestedInput
     commissions?: CommissionUncheckedUpdateManyWithoutVendorNestedInput
@@ -18592,6 +18615,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     commission_rate?: Decimal | DecimalJsLike | number | string
+    profile_image?: string | null
   }
 
   export type VendorUpdateManyMutationInput = {
@@ -18612,6 +18636,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    profile_image?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type VendorUncheckedUpdateManyInput = {
@@ -18632,6 +18657,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    profile_image?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type UserCreateInput = {
@@ -19566,6 +19592,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     commission_rate?: SortOrder
+    profile_image?: SortOrder
   }
 
   export type VendorAvgOrderByAggregateInput = {
@@ -19590,6 +19617,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     commission_rate?: SortOrder
+    profile_image?: SortOrder
   }
 
   export type VendorMinOrderByAggregateInput = {
@@ -19610,6 +19638,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     commission_rate?: SortOrder
+    profile_image?: SortOrder
   }
 
   export type VendorSumOrderByAggregateInput = {
@@ -22199,6 +22228,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     commission_rate?: Decimal | DecimalJsLike | number | string
+    profile_image?: string | null
     orderItems?: OrderItemCreateNestedManyWithoutVendorInput
     commissions?: CommissionCreateNestedManyWithoutVendorInput
     payments?: PaymentCreateNestedManyWithoutVendorInput
@@ -22222,6 +22252,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     commission_rate?: Decimal | DecimalJsLike | number | string
+    profile_image?: string | null
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutVendorInput
     commissions?: CommissionUncheckedCreateNestedManyWithoutVendorInput
     payments?: PaymentUncheckedCreateNestedManyWithoutVendorInput
@@ -22374,6 +22405,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     orderItems?: OrderItemUpdateManyWithoutVendorNestedInput
     commissions?: CommissionUpdateManyWithoutVendorNestedInput
     payments?: PaymentUpdateManyWithoutVendorNestedInput
@@ -22397,6 +22429,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     orderItems?: OrderItemUncheckedUpdateManyWithoutVendorNestedInput
     commissions?: CommissionUncheckedUpdateManyWithoutVendorNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutVendorNestedInput
@@ -22943,6 +22976,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     commission_rate?: Decimal | DecimalJsLike | number | string
+    profile_image?: string | null
     products?: ProductCreateNestedManyWithoutVendorInput
     commissions?: CommissionCreateNestedManyWithoutVendorInput
     payments?: PaymentCreateNestedManyWithoutVendorInput
@@ -22966,6 +23000,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     commission_rate?: Decimal | DecimalJsLike | number | string
+    profile_image?: string | null
     products?: ProductUncheckedCreateNestedManyWithoutVendorInput
     commissions?: CommissionUncheckedCreateNestedManyWithoutVendorInput
     payments?: PaymentUncheckedCreateNestedManyWithoutVendorInput
@@ -23087,6 +23122,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     products?: ProductUpdateManyWithoutVendorNestedInput
     commissions?: CommissionUpdateManyWithoutVendorNestedInput
     payments?: PaymentUpdateManyWithoutVendorNestedInput
@@ -23110,6 +23146,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     products?: ProductUncheckedUpdateManyWithoutVendorNestedInput
     commissions?: CommissionUncheckedUpdateManyWithoutVendorNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutVendorNestedInput
@@ -23133,6 +23170,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     commission_rate?: Decimal | DecimalJsLike | number | string
+    profile_image?: string | null
     products?: ProductCreateNestedManyWithoutVendorInput
     orderItems?: OrderItemCreateNestedManyWithoutVendorInput
     payments?: PaymentCreateNestedManyWithoutVendorInput
@@ -23156,6 +23194,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     commission_rate?: Decimal | DecimalJsLike | number | string
+    profile_image?: string | null
     products?: ProductUncheckedCreateNestedManyWithoutVendorInput
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutVendorInput
     payments?: PaymentUncheckedCreateNestedManyWithoutVendorInput
@@ -23224,6 +23263,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     products?: ProductUpdateManyWithoutVendorNestedInput
     orderItems?: OrderItemUpdateManyWithoutVendorNestedInput
     payments?: PaymentUpdateManyWithoutVendorNestedInput
@@ -23247,6 +23287,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     products?: ProductUncheckedUpdateManyWithoutVendorNestedInput
     orderItems?: OrderItemUncheckedUpdateManyWithoutVendorNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutVendorNestedInput
@@ -23334,6 +23375,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     commission_rate?: Decimal | DecimalJsLike | number | string
+    profile_image?: string | null
     products?: ProductCreateNestedManyWithoutVendorInput
     orderItems?: OrderItemCreateNestedManyWithoutVendorInput
     commissions?: CommissionCreateNestedManyWithoutVendorInput
@@ -23357,6 +23399,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     commission_rate?: Decimal | DecimalJsLike | number | string
+    profile_image?: string | null
     products?: ProductUncheckedCreateNestedManyWithoutVendorInput
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutVendorInput
     commissions?: CommissionUncheckedCreateNestedManyWithoutVendorInput
@@ -23431,6 +23474,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     products?: ProductUpdateManyWithoutVendorNestedInput
     orderItems?: OrderItemUpdateManyWithoutVendorNestedInput
     commissions?: CommissionUpdateManyWithoutVendorNestedInput
@@ -23454,6 +23498,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     products?: ProductUncheckedUpdateManyWithoutVendorNestedInput
     orderItems?: OrderItemUncheckedUpdateManyWithoutVendorNestedInput
     commissions?: CommissionUncheckedUpdateManyWithoutVendorNestedInput

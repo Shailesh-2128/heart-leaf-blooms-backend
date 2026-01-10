@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Leaf Blooms - Vendors</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+
+        :root {
+            --primary: #2d6a4f;
+            --secondary: #d8f3dc;
+            --bg: #fff;
+            --text: #1b4332;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            background: rgba(255, 255, 255, 0.95);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .btn-auth {
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(to bottom, #d8f3dc 0%, #fff 100%);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        /* Vendor Grid */
+        .section {
+            padding: 40px 5%;
+        }
+
+        .vendor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .vendor-card {
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            transition: 0.3s;
+            cursor: pointer;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .vendor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-color: var(--secondary);
+        }
+
+        .vendor-name {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .shop-name {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .vendor-desc {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .vendor-badges {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: #f1f1f1;
+            color: #555;
+        }
+
+        .badge.verified {
+            background: #dff9fb;
+            color: #2d6a4f;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo">Heart Leaf Blooms</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="vendors.html" style="color: var(--primary); font-weight: 700;">Vendors</a>
+            <a href="#">Shop</a>
+            <a href="cart.html">Cart</a>
+            <a href="wishlist.html">Wishlist</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <h1>Our Trusted Growers</h1>
+        <p>Connect directly with the best nurseries and florists.</p>
+    </header>
+
+    <div class="section">
+        <div class="vendor-grid" id="vendorList">
+            <!-- Loaded via JS -->
+            <p style="text-align:center; width: 100%;">Loading vendors...</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:7071' : 'http://localhost:7071';
+
+        async function loadVendors() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/vendor/list`);
+                if (!res.ok) throw new Error('Failed to load');
+                const vendors = await res.json();
+
+                const container = document.getElementById('vendorList');
+                container.innerHTML = '';
+
+                if (vendors.length === 0) {
+                    container.innerHTML = '<p>No vendors found.</p>';
+                }
+
+                vendors.forEach(v => {
+                    const el = document.createElement('div');
+                    el.className = 'vendor-card';
+                    el.onclick = () => window.location.href = `vendor_products.html?id=${v.id}&name=${encodeURIComponent(v.shopName)}`;
+
+                    let badges = '';
+                    if (v.isVerified) badges += '<span class="badge verified">Verified</span>';
+                    if (v.isFeatured) badges += '<span class="badge" style="background:#fff3cd; color:#856404">Featured</span>';
+
+                    el.innerHTML = `
+                        <div class="shop-name">${v.shopName}</div>
+                        <div class="vendor-badges">${badges}</div>
+                        <div class="vendor-desc">${v.shopDescription || 'No description provided.'}</div>
+                        <div style="font-size:0.85rem; color:#aaa; margin-top:10px;">📍 ${v.shopAddress}</div>
+                    `;
+                    container.appendChild(el);
+                });
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById('vendorList').innerHTML = '<p>Error loading vendors.</p>';
+            }
+        }
+
+        loadVendors();
+    </script>
+</body>
+
+</html>

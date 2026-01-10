@@ -147,7 +147,8 @@ exports.Prisma.VendorScalarFieldEnum = {
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  commission_rate: 'commission_rate'
+  commission_rate: 'commission_rate',
+  profile_image: 'profile_image'
 };
 
 exports.Prisma.UserScalarFieldEnum = {

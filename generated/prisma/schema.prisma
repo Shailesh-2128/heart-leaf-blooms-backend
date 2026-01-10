@@ -42,6 +42,7 @@ model Vendor {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   commission_rate Decimal  @default(0.10)
+  profile_image   String?
 
   products    Product[]
   orderItems  OrderItem[]
@@ -106,7 +107,7 @@ model Product {
   product_price       Decimal
   discount_price      Decimal?
   product_guide       String?
-  is_available        Boolean  @default(true) // Typo fix: avaliable -> available check? User said "is_avaliable". I will use "is_available" (correct spelling) but map if needed. I'll stick to correct spelling.
+  is_available        Boolean  @default(true)
 
   images        Image[]
   cartItems     Cart[]

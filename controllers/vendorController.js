@@ -118,6 +118,27 @@ const getAllVendors = async (req, res) => {
     }
 };
 
+// Get Public Vendors (for Frontend)
+const getPublicVendors = async (req, res) => {
+    try {
+        const vendors = await prisma.vendor.findMany({
+            where: { status: 'approved' },
+            select: {
+                id: true,
+                shopName: true,
+                shopDescription: true,
+                shopAddress: true,
+                vendorTag: true,
+                isFeatured: true,
+                isVerified: true
+            }
+        });
+        res.status(200).json(vendors);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 // Get Single Vendor
 const getVendor = async (req, res) => {
     try {
@@ -204,5 +225,6 @@ module.exports = {
     getVendor,
     updateVendor,
     deleteVendor,
-    approveVendor
+    approveVendor,
+    getPublicVendors
 };

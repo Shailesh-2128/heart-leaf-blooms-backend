@@ -41,6 +41,8 @@ const {
  *   post:
  *     summary: Create a new category (Admin)
  *     tags: [Category]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -49,7 +51,18 @@ const {
  *             $ref: '#/components/schemas/Category'
  *     responses:
  *       201:
- *         description: Created
+ *         description: Category created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 category:
+ *                   $ref: '#/components/schemas/Category'
+ *       500:
+ *         description: Server error
  */
 router.post("/", verifyToken, createCategory);
 
@@ -77,12 +90,15 @@ router.get("/", getAllCategories);
  *   put:
  *     summary: Update category (Admin)
  *     tags: [Category]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
+ *         description: Category ID
  *     requestBody:
  *       content:
  *         application/json:
@@ -90,7 +106,20 @@ router.get("/", getAllCategories);
  *             $ref: '#/components/schemas/Category'
  *     responses:
  *       200:
- *         description: Updated
+ *         description: Category updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 category:
+ *                   $ref: '#/components/schemas/Category'
+ *       404:
+ *         description: Category not found
+ *       500:
+ *         description: Server error
  */
 router.put("/:id", verifyToken, updateCategory);
 
@@ -100,15 +129,22 @@ router.put("/:id", verifyToken, updateCategory);
  *   delete:
  *     summary: Delete category (Admin)
  *     tags: [Category]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
+ *         description: Category ID
  *     responses:
  *       200:
- *         description: Deleted
+ *         description: Category deleted successfully
+ *       404:
+ *         description: Category not found
+ *       500:
+ *         description: Server error
  */
 router.delete("/:id", verifyToken, deleteCategory);
 

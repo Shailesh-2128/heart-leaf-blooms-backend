@@ -74,6 +74,8 @@ const localUpload = require("../middlewares/localUpload");
  *   post:
  *     summary: Upload and resize a single product image
  *     tags: [Product]
+ *     security:
+ *       - bearerAuth: []
  *     description: Uploads an image, resizes it to Large (1200x1200), Medium (600x600), and Small (300x300), uploads them to S3, and returns the URLs.
  *     requestBody:
  *       required: true
@@ -122,6 +124,8 @@ router.post("/upload-image", verifyToken, localUpload.single('image'), uploadPro
  *   post:
  *     summary: Create a new product
  *     tags: [Product]
+ *     security:
+ *       - bearerAuth: []
  *     description: Create a product with associated images. Format 'product_images' as a flat array of URL strings [L, M, S, L, M, S...].
  *     requestBody:
  *       required: true
@@ -224,6 +228,8 @@ router.get("/:id", getProduct);
  *   put:
  *     summary: Update a product
  *     tags: [Product]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -260,6 +266,8 @@ router.put("/:id", verifyToken, updateProduct);
  *   delete:
  *     summary: Delete a product
  *     tags: [Product]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

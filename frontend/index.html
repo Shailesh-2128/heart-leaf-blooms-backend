@@ -211,6 +211,7 @@
         <a href="index.html" class="logo">Heart Leaf Blooms</a>
         <div class="nav-links" id="navLinks">
             <a href="index.html">Home</a>
+            <a href="vendors.html">Vendors</a>
             <a href="#">Shop</a>
             <a href="cart.html">Cart</a>
             <a href="wishlist.html">Wishlist</a>
@@ -293,7 +294,14 @@
                 container.innerHTML = '';
 
                 products.forEach(p => {
-                    const img = (p.images && p.images.length) ? p.images[0].img_url : 'https://via.placeholder.com/400x500';
+                    let img = 'https://via.placeholder.com/400x500';
+                    if (p.images && p.images.length) {
+                        // Priority: large > medium > small > img_url property (if simple object)
+                        // Adjust based on your actual data structure from seeder/API
+                        // Seeder: images: { create: [{ large_url, ... }] }
+                        // API Response: images: [{ large_url: '...' }]
+                        img = p.images[0].large_url || p.images[0].medium_url || p.images[0].img_url || img;
+                    }
 
                     const el = document.createElement('div');
                     el.className = 'product-card';

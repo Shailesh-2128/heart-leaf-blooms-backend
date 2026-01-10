@@ -11,6 +11,55 @@ const {
 
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     Order:
+ *       type: object
+ *       properties:
+ *         order_id:
+ *           type: string
+ *           description: Auto-generated UUID
+ *         user_id:
+ *           type: string
+ *         total_amount:
+ *           type: number
+ *         payment_status:
+ *           type: string
+ *           enum: [pending, paid, failed]
+ *         order_status:
+ *           type: string
+ *           enum: [pending, processing, shipped, delivered, cancelled]
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *         orderItems:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/OrderItem'
+ *     OrderItem:
+ *       type: object
+ *       properties:
+ *         order_item_id:
+ *           type: string
+ *         order_id:
+ *           type: string
+ *         product_id:
+ *           type: string
+ *         vendor_id:
+ *           type: string
+ *         price:
+ *           type: number
+ *         quantity:
+ *           type: integer
+ *         status:
+ *           type: string
+ */
+
+/**
+ * @swagger
  * tags:
  *   name: Order
  *   description: Order management API
@@ -22,6 +71,8 @@ const {
  *   post:
  *     summary: Place a new order
  *     tags: [Order]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -36,6 +87,19 @@ const {
  *     responses:
  *       201:
  *         description: Order placed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 order:
+ *                   $ref: '#/components/schemas/Order'
+ *       400:
+ *         description: Cart is empty or invalid
+ *       500:
+ *         description: Server error
  */
 router.post("/", verifyToken, createOrder);
 
@@ -45,9 +109,17 @@ router.post("/", verifyToken, createOrder);
  *   get:
  *     summary: Get all orders (Admin)
  *     tags: [Order]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of all orders
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Order'
  */
 router.get("/admin", verifyToken, getAllOrders);
 
@@ -57,6 +129,8 @@ router.get("/admin", verifyToken, getAllOrders);
  *   put:
  *     summary: Update order status (Admin)
  *     tags: [Order]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: orderId
@@ -75,6 +149,15 @@ router.get("/admin", verifyToken, getAllOrders);
  *     responses:
  *       200:
  *         description: Status updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 order:
+ *                   $ref: '#/components/schemas/Order'
  */
 router.put("/admin/:orderId", verifyToken, updateOrderStatus);
 
@@ -84,6 +167,8 @@ router.put("/admin/:orderId", verifyToken, updateOrderStatus);
  *   get:
  *     summary: Get orders for a specific vendor
  *     tags: [Order]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: vendorId
@@ -92,7 +177,13 @@ router.put("/admin/:orderId", verifyToken, updateOrderStatus);
  *           type: string
  *     responses:
  *       200:
- *         description: List of specific vendor oders
+ *         description: List of specific vendor orders
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/OrderItem'
  */
 router.get("/vendor/:vendorId", verifyToken, getVendorOrders);
 
@@ -102,6 +193,8 @@ router.get("/vendor/:vendorId", verifyToken, getVendorOrders);
  *   put:
  *     summary: Update order item status (Vendor)
  *     tags: [Order]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: itemId
@@ -120,6 +213,15 @@ router.get("/vendor/:vendorId", verifyToken, getVendorOrders);
  *     responses:
  *       200:
  *         description: Status updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 item:
+ *                   $ref: '#/components/schemas/OrderItem'
  */
 router.put("/item/:itemId", verifyToken, updateOrderItemStatus);
 

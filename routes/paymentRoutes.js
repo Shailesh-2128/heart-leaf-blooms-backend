@@ -5,6 +5,34 @@ const verifyToken = require('../middlewares/authMiddleware');
 
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     Payment:
+ *       type: object
+ *       properties:
+ *         payment_id:
+ *           type: string
+ *         order_id:
+ *           type: string
+ *         vendor_id:
+ *           type: string
+ *         amount:
+ *           type: number
+ *         payment_method:
+ *           type: string
+ *         payment_status:
+ *           type: string
+ *         payment_type:
+ *           type: string
+ *         transaction_id:
+ *           type: string
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ */
+
+/**
+ * @swagger
  * tags:
  *   name: Payment
  *   description: Payment and Payout API
@@ -16,6 +44,8 @@ const verifyToken = require('../middlewares/authMiddleware');
  *   post:
  *     summary: Create Razorpay Order
  *     tags: [Payment]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -37,6 +67,17 @@ const verifyToken = require('../middlewares/authMiddleware');
  *     responses:
  *       200:
  *         description: Order created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 currency:
+ *                   type: string
+ *                 amount:
+ *                   type: number
  *       500:
  *         description: Server error
  */
@@ -48,6 +89,8 @@ router.post('/create-order', verifyToken, paymentController.createRazorpayOrder)
  *   post:
  *     summary: Verify Razorpay Payment Signature
  *     tags: [Payment]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -68,6 +111,15 @@ router.post('/create-order', verifyToken, paymentController.createRazorpayOrder)
  *     responses:
  *       200:
  *         description: Payment verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 payment:
+ *                   $ref: '#/components/schemas/Payment'
  *       400:
  *         description: Invalid signature
  */
@@ -79,6 +131,8 @@ router.post('/verify', verifyToken, paymentController.verifyPayment);
  *   post:
  *     summary: Record a manual vendor payout (Admin)
  *     tags: [Payment]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -98,6 +152,15 @@ router.post('/verify', verifyToken, paymentController.verifyPayment);
  *     responses:
  *       201:
  *         description: Payout recorded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 payout:
+ *                   $ref: '#/components/schemas/Payment'
  *       500:
  *         description: Server error
  */

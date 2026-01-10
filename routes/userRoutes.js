@@ -170,6 +170,8 @@ router.post("/logout", logoutUser);
  *   get:
  *     summary: Get all users (Admin only)
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of all users
@@ -188,6 +190,8 @@ router.get("/", verifyToken, getAllUsers);
  *   get:
  *     summary: Get user profile by ID
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -212,6 +216,8 @@ router.get("/:id", verifyToken, getUser);
  *   put:
  *     summary: Update user profile
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -240,6 +246,8 @@ router.put("/:id", verifyToken, updateUser);
  *   delete:
  *     summary: Delete user
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -258,6 +266,8 @@ router.delete("/:id", verifyToken, deleteUser);
  *   post:
  *     summary: Add an address to user
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
