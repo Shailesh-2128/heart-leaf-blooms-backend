@@ -198,7 +198,7 @@ vendorRoute.post("/logout", logoutVendor);
  *               items:
  *                 $ref: '#/components/schemas/Vendor'
  */
-vendorRoute.get("/", verifyToken, getAllVendors);
+vendorRoute.get("/", getAllVendors);
 
 /**
  * @swagger
@@ -259,7 +259,7 @@ vendorRoute.get("/list", getPublicVendors);
  *       404:
  *         description: Vendor not found
  */
-vendorRoute.get("/:id", verifyToken, getVendor);
+vendorRoute.get("/:id", getVendor);
 
 /**
  * @swagger
