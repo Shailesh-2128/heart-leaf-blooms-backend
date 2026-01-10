@@ -70,10 +70,11 @@ const loginUser = async (req, res) => {
         }
 
         const token = jwt.sign({ user_id: user.user_id }, process.env.JWT_SECRET || 'secret_key', { expiresIn: '1d' });
+        console.log('User Login Token:', token);
 
-        res.cookie('token', token, {
+        res.cookie('user_token', token, {
             httpOnly: true,
-            secure: false,
+            secure: false, // Set to true in production if using HTTPS
             sameSite: 'lax',
             maxAge: 24 * 60 * 60 * 1000 // 1 day
         });
@@ -86,7 +87,7 @@ const loginUser = async (req, res) => {
 
 // Logout User
 const logoutUser = (req, res) => {
-    res.clearCookie('token', {
+    res.clearCookie('user_token', {
         httpOnly: true,
         secure: false,
         sameSite: 'lax'

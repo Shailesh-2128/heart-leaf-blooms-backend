@@ -271,7 +271,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "G:\\heart-leaf-blooms-backend\\generated\\prisma",
+      "value": "F:\\heart-leaf-blooms-backend-str\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -285,7 +285,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "G:\\heart-leaf-blooms-backend\\models\\schema.prisma",
+    "sourceFilePath": "F:\\heart-leaf-blooms-backend-str\\models\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -299,7 +299,6 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {

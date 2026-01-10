@@ -16,6 +16,8 @@ const {
  *       type: object
  *       required:
  *         - category_name
+ *         - category_description
+ *         - category_icon
  *       properties:
  *         category_id:
  *           type: integer

@@ -384,6 +384,7 @@
 
                 const res = await fetch(`${API_BASE_URL}/vendor/approve/${id}`, {
                     method: 'PUT',
+                    credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         status: 'approved',

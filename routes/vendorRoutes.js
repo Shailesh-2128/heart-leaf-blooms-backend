@@ -86,7 +86,15 @@ const verifyToken = require('../middlewares/authMiddleware');
  *               - email
  *               - password
  *               - shopName
+ *               - name
+ *               - email
+ *               - password
+ *               - shopName
  *               - shopAddress
+ *               - shopDescription
+ *               - bankName
+ *               - accountNumber
+ *               - IFSC
  *             properties:
  *               name:
  *                 type: string

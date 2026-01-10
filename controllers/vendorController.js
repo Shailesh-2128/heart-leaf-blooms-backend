@@ -84,10 +84,11 @@ const loginVendor = async (req, res) => {
         }
 
         const token = jwt.sign({ id: vendor.id, role: 'vendor' }, process.env.JWT_SECRET || 'secret_key', { expiresIn: '1d' });
+        console.log('Vendor Login Token:', token);
 
-        res.cookie('token', token, {
+        res.cookie('vendor_token', token, {
             httpOnly: true,
-            secure: false,
+            secure: false, // Set to true in production if using HTTPS
             sameSite: 'lax',
             maxAge: 24 * 60 * 60 * 1000 // 1 day
         });
@@ -100,7 +101,7 @@ const loginVendor = async (req, res) => {
 
 // Logout Vendor
 const logoutVendor = (req, res) => {
-    res.clearCookie('token', {
+    res.clearCookie('vendor_token', {
         httpOnly: true,
         secure: false,
         sameSite: 'lax'

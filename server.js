@@ -10,7 +10,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
-const swaggerUi = require("swagger-ui-express");       
+const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
 const compression = require("compression");
 const PORT = process.env.PORT;
@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use(cors({ origin: true, credentials: true })); // origin: true reflects the request origin
+app.use(cors({ origin: true, credentials: true })); // origin: true allows the requesting origin, needed for cookies
 app.use(compression());
 
 // Request Logger

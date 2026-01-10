@@ -142,31 +142,56 @@ const getProduct = async (req, res) => {
 };
 
 // Update Product
+// Update Product
 const updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
         const data = req.body;
 
-        // Separate images if present, as they need special handling usually, 
-        // but for now let's assume we just update scalar fields or handling complexity later.
-        // If product_images is passed, we might want to add them or replace them.
-        // For simplicity: Update scalar fields.
+        // 1. Fetch Existing Product to check ownership
+        const existingProduct = await prisma.product.findUnique({
+            where: { product_id: id }
+        });
 
-        const { product_images, ...updateData } = data;
+        if (!existingProduct) {
+            return res.status(404).json({ error: "Product not found" });
+        }
 
+        // 2. Check Ownership (if requester is a vendor)
+        // req.user is set by authMiddleware
+        if (req.user && req.user.role === 'vendor') {
+            if (existingProduct.vendor_id !== req.user.id) {
+                return res.status(403).json({ error: "Unauthorized: You can only update your own products" });
+            }
+        }
+
+        // 3. Prepare Update Data (Sanitize)
+        const { product_images, ...rest } = data;
+        let updateData = {};
+
+        if (rest.product_name) updateData.product_name = rest.product_name;
+        if (rest.product_title) updateData.product_title = rest.product_title;
+        if (rest.product_description) updateData.product_description = rest.product_description;
+        if (rest.product_guide) updateData.product_guide = rest.product_guide;
+
+        if (rest.product_price) updateData.product_price = parseFloat(rest.product_price);
+        if (rest.discount_price !== undefined) updateData.discount_price = rest.discount_price ? parseFloat(rest.discount_price) : null;
+        if (rest.category_id) updateData.category_id = parseInt(rest.category_id);
+        if (rest.is_available !== undefined) updateData.is_available = rest.is_available; // Boolean
+
+        // 4. Update Scalar Fields
         const updatedProduct = await prisma.product.update({
             where: { product_id: id },
             data: updateData
         });
 
-        // If images provided, maybe add them?
+        // 5. Handle New Images (Append)
         let newImages = [];
-
-        // From Body (product_images = [large, medium, small...])
         if (product_images) {
             let urls = product_images;
             if (!Array.isArray(urls)) urls = [urls];
 
+            // Expect triplets [large, medium, small]
             for (let i = 0; i < urls.length; i += 3) {
                 const large = urls[i];
                 const medium = urls[i + 1];
@@ -175,9 +200,9 @@ const updateProduct = async (req, res) => {
                 if (large && medium && small) {
                     newImages.push({
                         product_id: id,
-                        large_url: large,
-                        medium_url: medium,
-                        small_url: small
+                        large_url: String(large),
+                        medium_url: String(medium),
+                        small_url: String(small)
                     });
                 }
             }
@@ -189,8 +214,19 @@ const updateProduct = async (req, res) => {
             });
         }
 
-        res.status(200).json({ message: "Product updated", product: updatedProduct });
+        // 6. Return Updated Product with Relations
+        const finalProduct = await prisma.product.findUnique({
+            where: { product_id: id },
+            include: {
+                images: true,
+                category: true,
+                vendor: true
+            }
+        });
+
+        res.status(200).json({ message: "Product updated", product: finalProduct });
     } catch (error) {
+        console.error("Update Product Error:", error);
         res.status(500).json({ error: error.message });
     }
 };
