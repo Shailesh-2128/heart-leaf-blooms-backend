@@ -23,7 +23,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use(cors({ origin: true, credentials: true })); // origin: true allows the requesting origin, needed for cookies
+app.use(cors({
+    origin: true, // Dynamically allow any origin (effectively '*') while enabling cookies
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
+}));
+// app.use(cors({ origin: true, credentials: true })); // origin: true allows the requesting origin, needed for cookies
+
 app.use(compression());
 
 // Request Logger

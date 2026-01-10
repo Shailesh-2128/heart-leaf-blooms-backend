@@ -103,6 +103,16 @@ Authentication is handled via **HTTP-Only Cookies**.
     ```
 *   **Response**: `200 OK` (Sets `vendor_token` cookie)
 
+### Get All Vendors (Public)
+*   **Method**: `GET`
+*   **Endpoint**: `/vendor`
+*   **Response**: Array of all vendor objects.
+
+### Get Single Vendor (Public)
+*   **Method**: `GET`
+*   **Endpoint**: `/vendor/:id`
+*   **Response**: Single vendor object.
+
 ---
 
 ## 3. Product Endpoints
@@ -153,7 +163,22 @@ Authentication is handled via **HTTP-Only Cookies**.
 
 ### Get Single Product
 *   **Method**: `GET`
+### Get Single Product
+*   **Method**: `GET`
 *   **Endpoint**: `/product/:id`
+
+### Update Product
+*   **Method**: `PUT`
+*   **Endpoint**: `/product/:id`
+*   **Payload**:
+    ```json
+    {
+      "product_name": "Updated Name",
+      "product_price": 600,
+      "product_images": ["new_url_L", "new_url_M", "new_url_S"]
+    }
+    ```
+    *(Note: Only provide fields you want to update)*
 
 ---
 
