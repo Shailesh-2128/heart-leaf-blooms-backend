@@ -41,6 +41,7 @@ model Vendor {
   status          String   @default("pending")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  commission_rate Decimal  @default(0.10)
 
   products    Product[]
   orderItems  OrderItem[]
@@ -119,8 +120,11 @@ model Product {
 model Image {
   image_id   Int     @id @default(autoincrement())
   product_id String
-  product    Product @relation(fields: [product_id], references: [product_id])
-  img_url    String
+  product    Product @relation(fields: [product_id], references: [product_id], onDelete: Cascade)
+
+  large_url  String
+  medium_url String
+  small_url  String
 }
 
 model Category {
@@ -179,8 +183,8 @@ model Commission {
 
 model Payment {
   payment_id     String   @id @default(uuid())
-  order_id       String
-  order          Order    @relation(fields: [order_id], references: [order_id])
+  order_id       String?
+  order          Order?   @relation(fields: [order_id], references: [order_id])
   vendor_id      String?
   vendor         Vendor?  @relation(fields: [vendor_id], references: [id])
   amount         Decimal

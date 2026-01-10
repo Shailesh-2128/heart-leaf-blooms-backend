@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createAdmin, loginAdmin, displayAdmin, updateAdmin, getVendorPayoutStats } = require('../controllers/adminCotrollers');
+const { createAdmin, loginAdmin, logoutAdmin, displayAdmin, updateAdmin, getVendorPayoutStats } = require('../controllers/adminCotrollers');
 
 /**
  * @swagger
@@ -38,107 +38,15 @@ const { createAdmin, loginAdmin, displayAdmin, updateAdmin, getVendorPayoutStats
  *       500:
  *         description: Server error
  */
+const verifyToken = require('../middlewares/authMiddleware');
+
 router.post('/create', createAdmin);
-
-/**
- * @swagger
- * /admin/login:
- *   post:
- *     summary: Login for admin
- *     tags: [Admin]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       200:
- *         description: Login successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 token:
- *                   type: string
- *                 admin:
- *                   type: object
- *       401:
- *         description: Invalid credentials
- *       404:
- *         description: Admin not found
- */
 router.post('/login', loginAdmin);
+router.post('/logout', logoutAdmin);
 
-/**
- * @swagger
- * /admin/display/{id}:
- *   get:
- *     summary: Get admin details by ID
- *     tags: [Admin]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: The admin ID
- *     responses:
- *       200:
- *         description: Admin details
- *       404:
- *         description: Admin not found
- *       500:
- *         description: Server error
- */
-router.get('/display/:id', displayAdmin);
-
-/**
- * @swagger
- * /admin/update/{id}:
- *   put:
- *     summary: Update admin email or password
- *     tags: [Admin]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: The admin ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       200:
- *         description: Admin updated successfully
- *       400:
- *         description: One or more fields missing or invalid / Email already exists
- *       404:
- *         description: Admin not found
- *       500:
- *         description: Server error
- */
-router.put('/update/:id', updateAdmin);
-
-router.put('/update/:id', updateAdmin);
+router.get('/display/:id', verifyToken, displayAdmin);
+router.put('/update/:id', verifyToken, updateAdmin);
+router.get('/payout-stats', verifyToken, getVendorPayoutStats);
 
 /**
  * @swagger

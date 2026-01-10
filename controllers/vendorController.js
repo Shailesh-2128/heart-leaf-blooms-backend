@@ -85,10 +85,27 @@ const loginVendor = async (req, res) => {
 
         const token = jwt.sign({ id: vendor.id, role: 'vendor' }, process.env.JWT_SECRET || 'secret_key', { expiresIn: '1d' });
 
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            maxAge: 24 * 60 * 60 * 1000 // 1 day
+        });
+
         res.status(200).json({ message: "Login successful", token, vendor });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+};
+
+// Logout Vendor
+const logoutVendor = (req, res) => {
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax'
+    });
+    res.status(200).json({ message: "Logged out successfully" });
 };
 
 // Get All Vendors (for Admin)
@@ -182,6 +199,7 @@ const approveVendor = async (req, res) => {
 module.exports = {
     createVendor,
     loginVendor,
+    logoutVendor,
     getAllVendors,
     getVendor,
     updateVendor,

@@ -47,10 +47,26 @@ const loginAdmin = async (req, res) => {
 
         const token = jwt.sign({ id: admin.id }, process.env.JWT_SECRET || 'secret_key', { expiresIn: '1d' });
 
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            maxAge: 24 * 60 * 60 * 1000 // 1 day
+        });
+
         res.status(200).json({ message: "Login successful", token, admin });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+};
+
+const logoutAdmin = (req, res) => {
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax'
+    });
+    res.status(200).json({ message: "Logged out successfully" });
 };
 
 const displayAdmin = async (req, res) => {
@@ -195,6 +211,7 @@ const getVendorPayoutStats = async (req, res) => {
 module.exports = {
     createAdmin,
     loginAdmin,
+    logoutAdmin,
     displayAdmin,
     updateAdmin,
     getVendorPayoutStats

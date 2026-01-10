@@ -3,6 +3,8 @@ const prisma = require("../config/prisma");
 // Create Product (Vendor)
 const createProduct = async (req, res) => {
     try {
+        console.log("Create Product Request:", JSON.stringify(req.body, null, 2));
+
         const {
             vendor_id,
             category_id,
@@ -26,34 +28,60 @@ const createProduct = async (req, res) => {
         // Prepare Image Data
         let imageData = [];
 
-        // From S3 Upload
-        if (req.files && req.files.length > 0) {
-            req.files.forEach(file => {
-                imageData.push({ img_url: file.location });
-            });
-        }
+        // The frontend now sends 'product_images' as a flat array of URLs strings 
+        // after uploading via /upload-image endpoint.
+        // Format from frontend: [large1, medium1, small1, large2, medium2, small2, ...]
 
-        // From Body (if mixed or text URLs provided)
         if (req.body.product_images) {
             let urls = req.body.product_images;
             if (!Array.isArray(urls)) urls = [urls];
-            urls.forEach(url => imageData.push({ img_url: url }));
+
+            // We expect groups of 3 (large, medium, small)
+            // But let's be safe. If the array is not a multiple of 3, we might have an issue, 
+            // or maybe the user sent just mixed urls? 
+            // Assumption based on frontend code: it pushes [large, medium, small] for each file.
+
+            for (let i = 0; i < urls.length; i += 3) {
+                // Ensure we have enough items
+                const large = urls[i];
+                const medium = urls[i + 1];
+                const small = urls[i + 2];
+
+                if (!large || !medium || !small) {
+                    console.warn(`[CreateProduct] WARN: Missing image URL(s) at group index ${i / 3}. Got:`, { large, medium, small });
+                }
+
+                if (large && medium && small) {
+                    imageData.push({
+                        large_url: String(large),
+                        medium_url: String(medium),
+                        small_url: String(small)
+                    });
+                }
+            }
+            if (imageData.length === 0) {
+                console.warn("[CreateProduct] WARN: product_images provided but no valid triplets found!");
+            }
         }
 
+        const prismaData = {
+            vendor_id,
+            category_id: parseInt(category_id),
+            product_name,
+            product_title,
+            product_description,
+            product_price,
+            discount_price,
+            product_guide,
+            images: {
+                create: imageData
+            }
+        };
+
+        console.log("DB Insertion Data:", JSON.stringify(prismaData, null, 2));
+
         const newProduct = await prisma.product.create({
-            data: {
-                vendor_id,
-                category_id: parseInt(category_id),
-                product_name,
-                product_title,
-                product_description,
-                product_price,
-                discount_price,
-                product_guide,
-                images: {
-                    create: imageData
-                }
-            },
+            data: prismaData,
             include: {
                 images: true,
                 category: true,
@@ -61,8 +89,12 @@ const createProduct = async (req, res) => {
             }
         });
 
+        console.log("DB Result Product ID:", newProduct.product_id);
+        console.log("DB Result Images Count:", newProduct.images ? newProduct.images.length : 0);
+
         res.status(201).json({ message: "Product created successfully", product: newProduct });
     } catch (error) {
+        console.error("Create Product DB Error:", error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -130,18 +162,25 @@ const updateProduct = async (req, res) => {
         // If images provided, maybe add them?
         let newImages = [];
 
-        // From S3 Upload
-        if (req.files && req.files.length > 0) {
-            req.files.forEach(file => {
-                newImages.push({ product_id: id, img_url: file.location });
-            });
-        }
-
-        // From Body
+        // From Body (product_images = [large, medium, small...])
         if (product_images) {
             let urls = product_images;
             if (!Array.isArray(urls)) urls = [urls];
-            urls.forEach(url => newImages.push({ product_id: id, img_url: url }));
+
+            for (let i = 0; i < urls.length; i += 3) {
+                const large = urls[i];
+                const medium = urls[i + 1];
+                const small = urls[i + 2];
+
+                if (large && medium && small) {
+                    newImages.push({
+                        product_id: id,
+                        large_url: large,
+                        medium_url: medium,
+                        small_url: small
+                    });
+                }
+            }
         }
 
         if (newImages.length > 0) {
@@ -192,12 +231,17 @@ const getProductsByCategory = async (req, res) => {
 const getProductsByVendor = async (req, res) => {
     try {
         const { vendorId } = req.params;
+        console.log("Fetching products for vendor ID:", vendorId);
+
         const products = await prisma.product.findMany({
             where: { vendor_id: vendorId },
             include: { images: true }
         });
+
+        console.log(`Found ${products.length} products for vendor.`);
         res.status(200).json(products);
     } catch (error) {
+        console.error("Get Vendor Products Error:", error);
         res.status(500).json({ error: error.message });
     }
 };

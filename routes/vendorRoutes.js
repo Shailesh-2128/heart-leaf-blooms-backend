@@ -3,6 +3,7 @@ const vendorRoute = express.Router();
 const {
     createVendor,
     loginVendor,
+    logoutVendor,
     getAllVendors,
     getVendor,
     updateVendor,
@@ -29,6 +30,12 @@ const {
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *               - shopName
+ *               - shopAddress
  *             properties:
  *               name:
  *                 type: string
@@ -36,156 +43,37 @@ const {
  *                 type: string
  *               password:
  *                 type: string
+ *                 format: password
  *               shopName:
  *                 type: string
  *               shopAddress:
  *                 type: string
  *               shopDescription:
- *                   type: string
+ *                 type: string
  *               bankName:
- *                   type: string
- *               IFSC:
- *                   type: string
+ *                 type: string
  *               accountNumber:
- *                   type: string
+ *                 type: string
+ *               IFSC:
+ *                 type: string
  *     responses:
  *       201:
- *         description: Vendor application submitted
+ *         description: Vendor registration submitted successfully
  *       400:
- *         description: Error
+ *         description: Email already exists or invalid input
+ *       500:
+ *         description: Server error
  */
+const verifyToken = require('../middlewares/authMiddleware');
+
 vendorRoute.post("/register", createVendor);
-
-/**
- * @swagger
- * /vendor/login:
- *   post:
- *     summary: Login vendor
- *     tags: [Vendor]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               vendorId:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       200:
- *         description: Login successful
- *       401:
- *         description: Invalid credentials
- */
 vendorRoute.post("/login", loginVendor);
+vendorRoute.post("/logout", logoutVendor);
 
-/**
- * @swagger
- * /vendor:
- *   get:
- *     summary: Get all vendors
- *     tags: [Vendor]
- *     responses:
- *       200:
- *         description: List of vendors
- */
-vendorRoute.get("/", getAllVendors);
-
-/**
- * @swagger
- * /vendor/{id}:
- *   get:
- *     summary: Get vendor by ID
- *     tags: [Vendor]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Vendor details
- *       404:
- *         description: Vendor not found
- */
-vendorRoute.get("/:id", getVendor);
-
-/**
- * @swagger
- * /vendor/{id}:
- *   put:
- *     summary: Update vendor
- *     tags: [Vendor]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *     responses:
- *       200:
- *         description: Updated successfully
- */
-vendorRoute.put("/:id", updateVendor);
-
-/**
- * @swagger
- * /vendor/{id}:
- *   delete:
- *     summary: Delete vendor
- *     tags: [Vendor]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Deleted successfully
- */
-vendorRoute.delete("/:id", deleteVendor);
-
-/**
- * @swagger
- * /vendor/approve/{id}:
- *   put:
- *     summary: Approve vendor (Admin only)
- *     tags: [Vendor]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               status:
- *                 type: string
- *               vendorTag:
- *                 type: string
- *               isFeatured:
- *                 type: boolean
- *               isVerified:
- *                 type: boolean
- *     responses:
- *       200:
- *         description: Vendor approved
- */
-vendorRoute.put("/approve/:id", approveVendor);
+vendorRoute.get("/", verifyToken, getAllVendors);
+vendorRoute.get("/:id", verifyToken, getVendor);
+vendorRoute.put("/:id", verifyToken, updateVendor);
+vendorRoute.delete("/:id", verifyToken, deleteVendor);
+vendorRoute.put("/approve/:id", verifyToken, approveVendor);
 
 module.exports = vendorRoute;

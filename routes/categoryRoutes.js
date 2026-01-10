@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const verifyToken = require('../middlewares/authMiddleware');
 const {
     createCategory,
     getAllCategories,
@@ -50,7 +51,7 @@ const {
  *       201:
  *         description: Created
  */
-router.post("/", createCategory);
+router.post("/", verifyToken, createCategory);
 
 /**
  * @swagger
@@ -91,7 +92,7 @@ router.get("/", getAllCategories);
  *       200:
  *         description: Updated
  */
-router.put("/:id", updateCategory);
+router.put("/:id", verifyToken, updateCategory);
 
 /**
  * @swagger
@@ -109,6 +110,6 @@ router.put("/:id", updateCategory);
  *       200:
  *         description: Deleted
  */
-router.delete("/:id", deleteCategory);
+router.delete("/:id", verifyToken, deleteCategory);
 
 module.exports = router;

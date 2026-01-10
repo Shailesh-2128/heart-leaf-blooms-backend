@@ -243,6 +243,7 @@
         // Check Auth
         const userId = localStorage.getItem('user_id');
         const userName = localStorage.getItem('user_name');
+        const API_BASE_URL = window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:7071' : 'http://localhost:7071';
 
         if (userId) {
             document.getElementById('loginBtn').style.display = 'none';
@@ -251,15 +252,20 @@
             document.getElementById('logoutBtn').style.display = 'inline';
         }
 
-        function logout() {
-            localStorage.clear();
-            window.location.reload();
+        async function logout() {
+            try {
+                await fetch(`${API_BASE_URL}/user/logout`, { method: 'POST', credentials: 'include' });
+                localStorage.removeItem('user_id');
+                localStorage.removeItem('user_name');
+                // localStorage.clear(); // Avoid clearing everything if not needed
+                window.location.reload();
+            } catch (e) { console.error('Logout failed', e); }
         }
 
         async function init() {
             // Load Categories
             try {
-                const catRes = await fetch('http://localhost:7071/category');
+                const catRes = await fetch(`${API_BASE_URL}/category`);
                 const categories = await catRes.json();
                 const catContainer = document.getElementById('categoryList');
 
@@ -278,8 +284,8 @@
 
         async function loadProducts(categoryId = null) {
             try {
-                let url = 'http://localhost:7071/product';
-                if (categoryId) url = `http://localhost:7071/product/category/${categoryId}`;
+                let url = `${API_BASE_URL}/product`;
+                if (categoryId) url = `${API_BASE_URL}/product/category/${categoryId}`;
 
                 const res = await fetch(url);
                 const products = await res.json();
@@ -319,8 +325,9 @@
 
             try {
                 // New Route: POST /cart/:id
-                const res = await fetch(`http://localhost:7071/cart/${userId}`, {
+                const res = await fetch(`${API_BASE_URL}/cart/${userId}`, {
                     method: 'POST',
+                    credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ product_id: productId, quantity: 1 })
                 });
@@ -341,8 +348,9 @@
 
             try {
                 // New Route: POST /wishlist/:id
-                const res = await fetch(`http://localhost:7071/wishlist/${userId}`, {
+                const res = await fetch(`${API_BASE_URL}/wishlist/${userId}`, {
                     method: 'POST',
+                    credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ product_id: productId })
                 });

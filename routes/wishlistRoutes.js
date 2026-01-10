@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const verifyToken = require('../middlewares/authMiddleware');
 const {
     addToWishlist,
     deleteWishlistItem
@@ -39,7 +40,7 @@ const {
  *       201:
  *         description: Item added to wishlist
  */
-router.post("/:id", addToWishlist);
+router.post("/:id", verifyToken, addToWishlist);
 
 /**
  * @swagger
@@ -62,6 +63,6 @@ router.post("/:id", addToWishlist);
  *       200:
  *         description: Item removed from wishlist
  */
-router.delete("/:id/:wishlistId", deleteWishlistItem);
+router.delete("/:id/:wishlistId", verifyToken, deleteWishlistItem);
 
 module.exports = router;

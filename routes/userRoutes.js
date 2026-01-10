@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
+const verifyToken = require('../middlewares/authMiddleware');
 const {
     createUser,
     loginUser,
+    logoutUser,
     getUser,
     updateUser,
     deleteUser,
@@ -152,6 +154,18 @@ router.post("/login", loginUser);
 
 /**
  * @swagger
+ * /user/logout:
+ *   post:
+ *     summary: User logout
+ *     tags: [User]
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ */
+router.post("/logout", logoutUser);
+
+/**
+ * @swagger
  * /user:
  *   get:
  *     summary: Get all users (Admin only)
@@ -166,7 +180,7 @@ router.post("/login", loginUser);
  *               items:
  *                 $ref: '#/components/schemas/User'
  */
-router.get("/", getAllUsers);
+router.get("/", verifyToken, getAllUsers);
 
 /**
  * @swagger
@@ -190,7 +204,7 @@ router.get("/", getAllUsers);
  *       404:
  *         description: User not found
  */
-router.get("/:id", getUser);
+router.get("/:id", verifyToken, getUser);
 
 /**
  * @swagger
@@ -218,7 +232,7 @@ router.get("/:id", getUser);
  *       200:
  *         description: User updated
  */
-router.put("/:id", updateUser);
+router.put("/:id", verifyToken, updateUser);
 
 /**
  * @swagger
@@ -236,7 +250,7 @@ router.put("/:id", updateUser);
  *       200:
  *         description: User deleted
  */
-router.delete("/:id", deleteUser);
+router.delete("/:id", verifyToken, deleteUser);
 
 /**
  * @swagger
@@ -278,7 +292,7 @@ router.delete("/:id", deleteUser);
  *             schema:
  *               $ref: '#/components/schemas/Address'
  */
-router.post("/:id/address", addAddress);
+router.post("/:id/address", verifyToken, addAddress);
 
 // Cart and Wishlist routes moved to separate files
 module.exports = router;

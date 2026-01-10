@@ -294,9 +294,9 @@
 
     <script>
         const VENDOR_ID = localStorage.getItem('vendor_id');
-        const TOKEN = localStorage.getItem('vendor_token');
+        const API_BASE_URL = window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:7071' : 'http://localhost:7071';
 
-        if (!VENDOR_ID || !TOKEN) {
+        if (!VENDOR_ID) {
             window.location.href = 'vendor_login.html';
         }
 
@@ -316,7 +316,7 @@
 
         async function loadOrders() {
             try {
-                const res = await fetch(`http://localhost:7071/order/vendor/${VENDOR_ID}`);
+                const res = await fetch(`${API_BASE_URL}/order/vendor/${VENDOR_ID}`, { credentials: 'include' });
                 const orders = await res.json();
                 const container = document.getElementById('orderList');
                 container.innerHTML = '';
@@ -371,8 +371,9 @@
 
         async function shipItem(itemId) {
             try {
-                await fetch(`http://localhost:7071/order/item/${itemId}`, {
+                await fetch(`${API_BASE_URL}/order/item/${itemId}`, {
                     method: 'PUT',
+                    credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status: 'shipped' })
                 });
@@ -382,7 +383,7 @@
 
         async function loadCategories() {
             try {
-                const res = await fetch('http://localhost:7071/category');
+                const res = await fetch(`${API_BASE_URL}/category`);
                 const categories = await res.json();
                 const select = document.getElementById('categorySelect');
                 categories.forEach(cat => {
@@ -398,14 +399,15 @@
 
         async function loadProducts() {
             try {
-                const res = await fetch(`http://localhost:7071/product/vendor/${VENDOR_ID}`);
+                const res = await fetch(`${API_BASE_URL}/product/vendor/${VENDOR_ID}`, { credentials: 'include' });
                 const products = await res.json();
                 const grid = document.getElementById('productGrid');
                 grid.innerHTML = '';
 
                 products.forEach(product => {
                     // Get first image or placeholder
-                    const imgUrl = (product.images && product.images.length > 0) ? product.images[0].img_url : 'https://via.placeholder.com/300';
+                    // New Schema: product.images[0].medium_url
+                    const imgUrl = (product.images && product.images.length > 0) ? product.images[0].medium_url : 'https://via.placeholder.com/300';
                     // console.log('Product Image:', imgUrl); // Debug
 
                     const card = document.createElement('div');
@@ -430,35 +432,121 @@
 
         document.getElementById('productForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = new FormData(e.target);
-            formData.append('vendor_id', VENDOR_ID);
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.innerText = 'Processing...';
+            submitBtn.disabled = true;
+
+            const form = e.target;
+            const fileInput = form.querySelector('input[name="product_images"]');
+            const files = fileInput.files;
+
+            // 1. Storage for final URLs (Strings)
+            let finalImageUrls = [];
 
             try {
-                const res = await fetch('http://localhost:7071/product', {
-                    method: 'POST',
-                    body: formData // No headers needed, browser sets multipart
+                // 2. Upload Images First (if any)
+                if (files.length > 0) {
+                    submitBtn.innerText = 'Uploading Images...';
+
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        const uploadData = new FormData();
+                        uploadData.append('image', file);
+
+                        const uploadRes = await fetch(`${API_BASE_URL}/product/upload-image`, {
+                            method: 'POST',
+                            credentials: 'include',
+                            body: uploadData
+                        });
+
+                        if (!uploadRes.ok) {
+                            throw new Error(`Failed to upload image: ${file.name}`);
+                        }
+
+                        const response = await uploadRes.json();
+                        const { large, medium, small } = response.data;
+
+                        // Push all sizes
+                        finalImageUrls.push(large);
+                        finalImageUrls.push(medium);
+                        finalImageUrls.push(small);
+                    }
+                }
+
+                // 3. Prepare Final Product Payload
+                const productFormData = new FormData(form);
+                // Remove the raw file objects from the payload to avoid double-handling or errors
+                productFormData.delete('product_images');
+
+                // Append the S3 URLs
+                finalImageUrls.forEach(url => {
+                    productFormData.append('product_images', url);
                 });
 
+                // Append Vendor ID
+                productFormData.append('vendor_id', VENDOR_ID);
+
+                // 4. Create Product (JSON Payload)
+                const categoryId = parseInt(productFormData.get('category_id'));
+                if (isNaN(categoryId)) throw new Error("Please select a Category");
+
+                const payload = {
+                    vendor_id: VENDOR_ID,
+                    product_name: productFormData.get('product_name'),
+                    product_title: productFormData.get('product_title'),
+                    product_description: productFormData.get('product_description'),
+                    product_guide: productFormData.get('product_guide'),
+                    product_price: parseFloat(productFormData.get('product_price')),
+                    discount_price: productFormData.get('discount_price') ? parseFloat(productFormData.get('discount_price')) : null,
+                    category_id: categoryId,
+                    product_images: finalImageUrls
+                };
+
+                console.log("Submitting Payload:", payload);
+
+                // Small delay to allow filesystem to settle if checking locally (hacky but safer for local dev)
+                await new Promise(r => setTimeout(r, 1000));
+
+                submitBtn.innerText = 'Creating Product...';
+                let res;
+                try {
+                    res = await fetch(`${API_BASE_URL}/product`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                } catch (netErr) {
+                    console.error("Network Error during Create Product:", netErr);
+                    throw new Error("Server unreachable (Network Error). Check if backend is running.");
+                }
+
                 if (res.ok) {
-                    alert('Product Created!');
+                    alert('Product Created Successfully!');
                     closeModal();
                     loadProducts();
-                    e.target.reset();
+                    form.reset();
                 } else {
                     const error = await res.json();
                     alert('Error: ' + error.error);
                 }
+
             } catch (err) {
                 console.error(err);
-                alert('Details: ' + err.message);
+                alert('Operation Failed: ' + err.message);
+            } finally {
+                submitBtn.innerText = originalBtnText;
+                submitBtn.disabled = false;
             }
         });
 
         async function deleteProduct(id) {
             if (!confirm('Are you sure?')) return;
             try {
-                const res = await fetch(`http://localhost:7071/product/${id}`, {
-                    method: 'DELETE'
+                const res = await fetch(`${API_BASE_URL}/product/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
                 });
                 if (res.ok) loadProducts();
             } catch (err) {
@@ -474,10 +562,12 @@
             document.getElementById('productModal').style.display = 'none';
         }
 
-        function logout() {
-            localStorage.removeItem('vendor_id');
-            localStorage.removeItem('vendor_token');
-            window.location.href = 'vendor_login.html';
+        async function logout() {
+            try {
+                await fetch(`${API_BASE_URL}/vendor/logout`, { method: 'POST' });
+                localStorage.removeItem('vendor_id');
+                window.location.href = 'vendor_login.html';
+            } catch (e) { console.error('Logout failed', e); }
         }
 
         // Init

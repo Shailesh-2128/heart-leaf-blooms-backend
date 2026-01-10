@@ -162,6 +162,7 @@
         <h2>Admin Panel</h2>
         <button onclick="showSection('vendors')" class="active" id="btn-vendors">Vendor Requests</button>
         <button onclick="showSection('categories')" id="btn-categories">Categories</button>
+        <button onclick="showSection('products')" id="btn-products">Products</button>
         <button onclick="showSection('orders')" id="btn-orders">Orders</button>
         <button onclick="showSection('payouts')" id="btn-payouts">Payouts</button>
         <button onclick="logout()" style="margin-top: auto;">Logout</button>
@@ -246,6 +247,71 @@
                 <tbody id="payoutList"></tbody>
             </table>
         </div>
+
+        <div id="section-products" style="display:none">
+            <div class="header">
+                <h1>All Products</h1>
+                <button onclick="openProductModal()"
+                    style="padding: 10px 20px; background: #2d6a4f; color: white; border: none; border-radius: 8px; cursor: pointer;">+
+                    Add Product</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product</th>
+                        <th>Vendor</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="productList"></tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal"
+        style="display:none; position: fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:200;">
+        <div class="modal-body" style="width: 500px; max-height: 90vh; overflow-y: auto;">
+            <h3>Add Product (Admin)</h3>
+            <form id="productForm" onsubmit="createProduct(event)">
+                <label>Vendor ID (Required)</label>
+                <input type="text" name="vendor_id" placeholder="Paste Vendor ID here" required>
+
+                <label>Category</label>
+                <select name="category_id" id="productCategory" required
+                    style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ddd;"></select>
+
+                <label>Product Name</label>
+                <input type="text" name="product_name" required>
+
+                <label>Title</label>
+                <input type="text" name="product_title" required>
+
+                <label>Description</label>
+                <textarea name="product_description" required></textarea>
+
+                <label>Guide/Instructions</label>
+                <textarea name="product_guide"></textarea>
+
+                <label>Price</label>
+                <input type="number" name="product_price" required>
+
+                <label>Discount Price</label>
+                <input type="number" name="discount_price">
+
+                <label>Images</label>
+                <input type="file" id="productImages" multiple accept="image/*">
+
+                <button type="submit" id="btnCreateProduct"
+                    style="width: 100%; padding: 10px; background: #2d6a4f; color: white; border: none; border-radius: 8px; cursor: pointer;">Create
+                    Product</button>
+                <button type="button" onclick="closeProductModal()"
+                    style="width: 100%; padding: 10px; background: #eee; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px;">Cancel</button>
+            </form>
+        </div>
     </div>
 
     <!-- Payout Modal -->
@@ -288,21 +354,26 @@
     <script>
         // Use existing vendor logic, extend with categories
 
+        const API_BASE_URL = window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:7071' : 'http://localhost:7071';
+
         function showSection(id) {
             document.getElementById('section-vendors').style.display = id === 'vendors' ? 'block' : 'none';
             document.getElementById('section-categories').style.display = id === 'categories' ? 'block' : 'none';
             document.getElementById('section-orders').style.display = id === 'orders' ? 'block' : 'none';
             document.getElementById('section-payouts').style.display = id === 'payouts' ? 'block' : 'none';
+            document.getElementById('section-products').style.display = id === 'products' ? 'block' : 'none';
 
             document.getElementById('btn-vendors').classList.toggle('active', id === 'vendors');
             document.getElementById('btn-categories').classList.toggle('active', id === 'categories');
             document.getElementById('btn-orders').classList.toggle('active', id === 'orders');
             document.getElementById('btn-payouts').classList.toggle('active', id === 'payouts');
+            document.getElementById('btn-products').classList.toggle('active', id === 'products');
 
             if (id === 'vendors') loadVendors();
             if (id === 'categories') loadCategories();
             if (id === 'orders') loadOrders();
             if (id === 'payouts') loadPayouts();
+            if (id === 'products') loadProducts();
         }
 
         async function toggleVendorStatus(id) {
@@ -311,7 +382,7 @@
                 const rateInput = document.getElementById(`rate-${id}`);
                 const commission_rate = rateInput ? parseFloat(rateInput.value) : 0.10;
 
-                const res = await fetch(`http://localhost:7071/vendor/approve/${id}`, {
+                const res = await fetch(`${API_BASE_URL}/vendor/approve/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -331,7 +402,7 @@
 
         async function loadVendors() {
             try {
-                const res = await fetch('http://localhost:7071/vendor/');
+                const res = await fetch(`${API_BASE_URL}/vendor/`, { credentials: 'include' });
                 const vendors = await res.json();
                 const tbody = document.getElementById('vendorList');
                 tbody.innerHTML = '';
@@ -361,7 +432,7 @@
 
         async function loadCategories() {
             try {
-                const res = await fetch('http://localhost:7071/category');
+                const res = await fetch(`${API_BASE_URL}/category`, { credentials: 'include' });
                 const cats = await res.json();
                 const tbody = document.getElementById('categoryList');
                 tbody.innerHTML = '';
@@ -383,7 +454,7 @@
 
         async function loadOrders() {
             try {
-                const res = await fetch('http://localhost:7071/order/admin');
+                const res = await fetch(`${API_BASE_URL}/order/admin`, { credentials: 'include' });
                 const orders = await res.json();
                 const tbody = document.getElementById('orderList');
                 tbody.innerHTML = '';
@@ -408,8 +479,9 @@
 
         async function updateOrderStatus(id, status) {
             try {
-                await fetch(`http://localhost:7071/order/admin/${id}`, {
+                await fetch(`${API_BASE_URL}/order/admin/${id}`, {
                     method: 'PUT',
+                    credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status })
                 });
@@ -425,8 +497,9 @@
             const desc = document.getElementById('catDesc').value;
             const icon = document.getElementById('catIcon').value;
 
-            await fetch('http://localhost:7071/category', {
+            await fetch(`${API_BASE_URL}/category`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ category_name: name, category_description: desc, category_icon: icon })
             });
@@ -436,18 +509,23 @@
 
         async function deleteCategory(id) {
             if (confirm('Delete?')) {
-                await fetch(`http://localhost:7071/category/${id}`, { method: 'DELETE' });
+                await fetch(`${API_BASE_URL}/category/${id}`, { method: 'DELETE', credentials: 'include' });
                 loadCategories();
             }
         }
 
-        function logout() {
-            window.location.href = 'admin_login.html';
+        async function logout() {
+            try {
+                await fetch(`${API_BASE_URL}/admin/logout`, { method: 'POST' });
+                window.location.href = 'admin_login.html';
+            } catch (e) {
+                window.location.href = 'admin_login.html';
+            }
         }
 
         async function loadPayouts() {
             try {
-                const res = await fetch('http://localhost:7071/admin/payout-stats');
+                const res = await fetch(`${API_BASE_URL}/admin/payout-stats`, { credentials: 'include' });
                 const stats = await res.json();
                 const tbody = document.getElementById('payoutList');
                 tbody.innerHTML = '';
@@ -493,8 +571,9 @@
             }
 
             try {
-                const res = await fetch('http://localhost:7071/payment/vendor-payout', {
+                const res = await fetch(`${API_BASE_URL}/payment/vendor-payout`, {
                     method: 'POST',
+                    credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ vendor_id: vId, amount: amount, payment_method: method })
                 });
@@ -507,6 +586,147 @@
                     alert('Error recording payout');
                 }
             } catch (e) { console.error(e); }
+        }
+
+        // --- Product Management (Admin Side) ---
+
+        async function loadProducts() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/product/`, { credentials: 'include' });
+                const products = await res.json();
+                const container = document.getElementById('productList');
+                container.innerHTML = '';
+
+                products.forEach(p => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${p.product_id ? p.product_id.substring(0, 8) : 'N/A'}</td>
+                        <td>
+                            <img src="${p.images && p.images.length > 0 ? p.images[0].small_url : ''}" style="height:40px; width:40px; object-fit:cover; border-radius:4px;">
+                            ${p.product_name}
+                        </td>
+                        <td>${p.vendor ? p.vendor.name : 'Unknown'}</td>
+                        <td>₹${p.product_price}</td>
+                        <td>
+                             <button onclick="deleteProduct('${p.product_id}')" style="background: #e63946;">Delete</button>
+                        </td>
+                    `;
+                    container.appendChild(tr);
+                });
+            } catch (error) {
+                console.error("Load Products Error:", error);
+            }
+        }
+
+        function openProductModal() {
+            document.getElementById('productModal').style.display = 'flex';
+            loadCategoriesForModal();
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
+
+        async function loadCategoriesForModal() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/category`);
+                const cats = await res.json();
+                const select = document.getElementById('productCategory');
+                select.innerHTML = '<option value="">Select Category</option>';
+                cats.forEach(c => {
+                    select.innerHTML += `<option value="${c.category_id}">${c.category_name}</option>`;
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function createProduct(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('btnCreateProduct');
+            submitBtn.innerText = 'Processing...';
+            submitBtn.disabled = true;
+
+            const form = document.getElementById('productForm');
+            const fileInput = document.getElementById('productImages');
+            const files = fileInput.files;
+
+            let finalImageUrls = [];
+
+            try {
+                // 1. Upload Images
+                if (files.length > 0) {
+                    submitBtn.innerText = 'Uploading Images...';
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        const uploadData = new FormData();
+                        uploadData.append('image', file);
+
+                        const res = await fetch(`${API_BASE_URL}/product/upload-image`, {
+                            method: 'POST',
+                            credentials: 'include',
+                            body: uploadData
+                        });
+
+                        if (!res.ok) throw new Error('Image upload failed');
+                        const response = await res.json();
+                        const { large, medium, small } = response.data;
+
+                        console.log("Uploaded Image:", response.data);
+
+                        finalImageUrls.push(large); // Large
+                        finalImageUrls.push(medium); // Medium
+                        finalImageUrls.push(small); // Small
+                    }
+                }
+
+                // 2. Prepare Payload
+                const formData = new FormData(form);
+                const payload = {
+                    vendor_id: formData.get('vendor_id'), // Admin explicitly provides this
+                    product_name: formData.get('product_name'),
+                    product_title: formData.get('product_title'),
+                    product_description: formData.get('product_description'),
+                    product_guide: formData.get('product_guide'),
+                    product_price: parseFloat(formData.get('product_price')),
+                    discount_price: formData.get('discount_price') ? parseFloat(formData.get('discount_price')) : null,
+                    category_id: parseInt(formData.get('category_id')),
+                    product_images: finalImageUrls
+                };
+
+                // Wait 1s
+                await new Promise(r => setTimeout(r, 1000));
+
+                submitBtn.innerText = 'Saving...';
+                const res = await fetch(`${API_BASE_URL}/product`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    alert('Product Created!');
+                    closeProductModal();
+                    loadProducts();
+                    form.reset();
+                } else {
+                    const err = await res.json();
+                    alert('Error: ' + (err.error || err.message));
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert('Failed: ' + err.message);
+            } finally {
+                submitBtn.innerText = 'Create Product';
+                submitBtn.disabled = false;
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (confirm('Delete product?')) {
+                await fetch(`${API_BASE_URL}/product/${id}`, { method: 'DELETE', credentials: 'include' });
+                loadProducts();
+            }
         }
 
         // Init

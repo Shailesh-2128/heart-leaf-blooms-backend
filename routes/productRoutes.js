@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const verifyToken = require('../middlewares/authMiddleware');
 const {
     createProduct,
     getAllProducts,
@@ -9,12 +10,24 @@ const {
     getProductsByCategory,
     getProductsByVendor
 } = require("../controllers/productController");
+const { uploadProductImage } = require("../controllers/productImageController");
 const upload = require("../middlewares/uploadImage");
+const localUpload = require("../middlewares/localUpload");
 
 /**
  * @swagger
  * components:
  *   schemas:
+ *     ProductImage:
+ *       type: object
+ *       properties:
+ *         large_url:
+ *           type: string
+ *         medium_url:
+ *           type: string
+ *         small_url:
+ *           type: string
+ *
  *     Product:
  *       type: object
  *       required:
@@ -25,6 +38,7 @@ const upload = require("../middlewares/uploadImage");
  *       properties:
  *         product_id:
  *           type: string
+ *           description: Auto-generated UUID
  *         vendor_id:
  *           type: string
  *         category_id:
@@ -35,43 +49,131 @@ const upload = require("../middlewares/uploadImage");
  *           type: string
  *         product_description:
  *           type: string
+ *         product_guide:
+ *           type: string
  *         product_price:
  *           type: number
  *         discount_price:
  *           type: number
- *         product_guide:
- *           type: string
- *         product_images:
+ *         images:
  *           type: array
  *           items:
- *             type: string
- *             description: URL of the image
+ *             $ref: '#/components/schemas/ProductImage'
  */
 
 /**
  * @swagger
  * tags:
  *   name: Product
- *   description: Product management
+ *   description: Product management endpoints
  */
+
+/**
+ * @swagger
+ * /product/upload-image:
+ *   post:
+ *     summary: Upload and resize a single product image
+ *     tags: [Product]
+ *     description: Uploads an image, resizes it to Large (1200x1200), Medium (600x600), and Small (300x300), uploads them to S3, and returns the URLs.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: The image file to upload (jpg, png, webp, svg)
+ *     responses:
+ *       200:
+ *         description: Image processed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Image uploaded successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     large:
+ *                       type: string
+ *                       description: URL of the large version
+ *                     medium:
+ *                       type: string
+ *                       description: URL of the medium version
+ *                     small:
+ *                       type: string
+ *                       description: URL of the small version
+ *       400:
+ *         description: Invalid file or missing image
+ *       500:
+ *         description: Server error processing image
+ */
+router.post("/upload-image", verifyToken, localUpload.single('image'), uploadProductImage);
 
 /**
  * @swagger
  * /product:
  *   post:
- *     summary: Create a new product (Vendor)
+ *     summary: Create a new product
  *     tags: [Product]
+ *     description: Create a product with associated images. Format 'product_images' as a flat array of URL strings [L, M, S, L, M, S...].
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Product'
+ *             type: object
+ *             required:
+ *               - vendor_id
+ *               - category_id
+ *               - product_name
+ *               - product_price
+ *             properties:
+ *               vendor_id:
+ *                 type: string
+ *               category_id:
+ *                 type: integer
+ *               product_name:
+ *                 type: string
+ *               product_title:
+ *                 type: string
+ *               product_description:
+ *                 type: string
+ *               product_price:
+ *                 type: number
+ *               discount_price:
+ *                 type: number
+ *               product_guide:
+ *                 type: string
+ *               product_images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Flat array of image URLs (Large, Medium, Small triplets)
  *     responses:
  *       201:
- *         description: Product created
+ *         description: Product created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 product:
+ *                   $ref: '#/components/schemas/Product'
+ *       404:
+ *         description: Vendor or Category not found
+ *       500:
+ *         description: Server error
  */
-router.post("/", upload.array('product_images', 5), createProduct);
+router.post("/", verifyToken, createProduct);
 
 /**
  * @swagger
@@ -81,7 +183,13 @@ router.post("/", upload.array('product_images', 5), createProduct);
  *     tags: [Product]
  *     responses:
  *       200:
- *         description: List of products
+ *         description: List of all products
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Product'
  */
 router.get("/", getAllProducts);
 
@@ -89,7 +197,7 @@ router.get("/", getAllProducts);
  * @swagger
  * /product/{id}:
  *   get:
- *     summary: Get product by ID
+ *     summary: Get a single product by ID
  *     tags: [Product]
  *     parameters:
  *       - in: path
@@ -97,9 +205,16 @@ router.get("/", getAllProducts);
  *         required: true
  *         schema:
  *           type: string
+ *         description: Product UUID
  *     responses:
  *       200:
  *         description: Product details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Product'
+ *       404:
+ *         description: Product not found
  */
 router.get("/:id", getProduct);
 
@@ -107,7 +222,7 @@ router.get("/:id", getProduct);
  * @swagger
  * /product/{id}:
  *   put:
- *     summary: Update product
+ *     summary: Update a product
  *     tags: [Product]
  *     parameters:
  *       - in: path
@@ -116,21 +231,34 @@ router.get("/:id", getProduct);
  *         schema:
  *           type: string
  *     requestBody:
+ *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Product'
+ *             type: object
+ *             properties:
+ *               product_name:
+ *                 type: string
+ *               product_price:
+ *                 type: number
+ *               product_images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: New images to add (flat array of L/M/S strings)
  *     responses:
  *       200:
- *         description: Updated
+ *         description: Product updated
+ *       404:
+ *         description: Product not found
  */
-router.put("/:id", upload.array('product_images', 5), updateProduct);
+router.put("/:id", verifyToken, updateProduct);
 
 /**
  * @swagger
  * /product/{id}:
  *   delete:
- *     summary: Delete product
+ *     summary: Delete a product
  *     tags: [Product]
  *     parameters:
  *       - in: path
@@ -140,9 +268,11 @@ router.put("/:id", upload.array('product_images', 5), updateProduct);
  *           type: string
  *     responses:
  *       200:
- *         description: Deleted
+ *         description: Product deleted
+ *       404:
+ *         description: Product not found
  */
-router.delete("/:id", deleteProduct);
+router.delete("/:id", verifyToken, deleteProduct);
 
 /**
  * @swagger

@@ -98,6 +98,7 @@
     </div>
 
     <script>
+        const API_BASE_URL = window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:7071' : 'http://localhost:7071';
         document.getElementById('loginForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
@@ -105,8 +106,9 @@
             const password = document.getElementById('password').value;
 
             try {
-                const response = await fetch('http://localhost:7071/vendor/login', {
+                const response = await fetch(`${API_BASE_URL}/vendor/login`, {
                     method: 'POST',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -120,7 +122,7 @@
                     msg.textContent = "Login Successful!";
                     msg.className = "message success";
                     msg.style.display = 'block';
-                    localStorage.setItem('vendor_token', result.token);
+                    // Token handled by cookie
                     localStorage.setItem('vendor_id', result.vendor.id);
 
                     setTimeout(() => {

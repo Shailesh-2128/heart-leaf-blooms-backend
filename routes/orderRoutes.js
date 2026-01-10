@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const verifyToken = require('../middlewares/authMiddleware');
 const {
     createOrder,
     getAllOrders,
@@ -36,7 +37,7 @@ const {
  *       201:
  *         description: Order placed successfully
  */
-router.post("/", createOrder);
+router.post("/", verifyToken, createOrder);
 
 /**
  * @swagger
@@ -48,7 +49,7 @@ router.post("/", createOrder);
  *       200:
  *         description: List of all orders
  */
-router.get("/admin", getAllOrders);
+router.get("/admin", verifyToken, getAllOrders);
 
 /**
  * @swagger
@@ -75,7 +76,7 @@ router.get("/admin", getAllOrders);
  *       200:
  *         description: Status updated
  */
-router.put("/admin/:orderId", updateOrderStatus);
+router.put("/admin/:orderId", verifyToken, updateOrderStatus);
 
 /**
  * @swagger
@@ -93,7 +94,7 @@ router.put("/admin/:orderId", updateOrderStatus);
  *       200:
  *         description: List of specific vendor oders
  */
-router.get("/vendor/:vendorId", getVendorOrders);
+router.get("/vendor/:vendorId", verifyToken, getVendorOrders);
 
 /**
  * @swagger
@@ -120,6 +121,6 @@ router.get("/vendor/:vendorId", getVendorOrders);
  *       200:
  *         description: Status updated
  */
-router.put("/item/:itemId", updateOrderItemStatus);
+router.put("/item/:itemId", verifyToken, updateOrderItemStatus);
 
 module.exports = router;

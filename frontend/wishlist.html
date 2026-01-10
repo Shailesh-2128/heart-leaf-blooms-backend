@@ -174,6 +174,7 @@
 
     <script>
         const userId = localStorage.getItem('user_id');
+        const API_BASE_URL = window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:7071' : 'http://localhost:7071';
 
         async function loadWishlist() {
             if (!userId) {
@@ -193,7 +194,7 @@
                 // I'll assume I update the backend in next step for cleaner code.
                 // For now, let's try to fetch.
 
-                const res = await fetch(`http://localhost:7071/user/${userId}`);
+                const res = await fetch(`${API_BASE_URL}/user/${userId}`, { credentials: 'include' });
                 if (!res.ok) throw new Error('Failed to fetch user');
 
                 const user = await res.json();
@@ -232,7 +233,7 @@
                 let product = item.product;
                 if (!product) {
                     // Fallback fetch if backend not updated yet
-                    const pRes = await fetch(`http://localhost:7071/product/${item.product_id}`); // Assuming generic get product route exists or I search 
+                    const pRes = await fetch(`${API_BASE_URL}/product/${item.product_id}`); // Assuming generic get product route exists or I search 
                     // Wait, there isn't a single get product by ID route in my viewing?
                     // productRoutes.js usually has it. 
                     if (pRes.ok) product = await pRes.json();
@@ -261,8 +262,9 @@
             if (!confirm('Remove from wishlist?')) return;
             try {
                 // New Route: DELETE /wishlist/:id/:wishlistId
-                const res = await fetch(`http://localhost:7071/wishlist/${userId}/${id}`, {
-                    method: 'DELETE'
+                const res = await fetch(`${API_BASE_URL}/wishlist/${userId}/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
                 });
                 if (res.ok) loadWishlist();
             } catch (e) { console.error(e); }
@@ -272,8 +274,9 @@
             // Add to cart
             try {
                 // New Route: POST /cart/:id
-                const res = await fetch(`http://localhost:7071/cart/${userId}`, {
+                const res = await fetch(`${API_BASE_URL}/cart/${userId}`, {
                     method: 'POST',
+                    credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ product_id: productId, quantity: 1 })
                 });
@@ -281,7 +284,7 @@
                 if (res.ok) {
                     // Remove from wishlist
                     // New Route: DELETE /wishlist/:id/:wishlistId
-                    await fetch(`http://localhost:7071/wishlist/${userId}/${wishlistId}`, { method: 'DELETE' });
+                    await fetch(`${API_BASE_URL}/wishlist/${userId}/${wishlistId}`, { method: 'DELETE', credentials: 'include' });
                     alert('Moved to cart!');
                     loadWishlist();
                 }

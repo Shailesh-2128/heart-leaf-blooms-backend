@@ -121,8 +121,11 @@ model Product {
 model Image {
   image_id   Int     @id @default(autoincrement())
   product_id String
-  product    Product @relation(fields: [product_id], references: [product_id])
-  img_url    String
+  product    Product @relation(fields: [product_id], references: [product_id], onDelete: Cascade)
+  
+  large_url  String
+  medium_url String
+  small_url  String
 }
 
 model Category {

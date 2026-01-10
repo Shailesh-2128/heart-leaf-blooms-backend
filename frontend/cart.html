@@ -268,6 +268,7 @@
 
     <script>
         const userId = localStorage.getItem('user_id');
+        const API_BASE_URL = window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:7071' : 'http://localhost:7071';
 
         async function loadCart() {
             if (!userId) {
@@ -277,7 +278,7 @@
             }
 
             try {
-                const res = await fetch(`http://localhost:7071/user/${userId}`);
+                const res = await fetch(`${API_BASE_URL}/user/${userId}`, { credentials: 'include' });
                 if (!res.ok) throw new Error('Failed to fetch user');
 
                 const user = await res.json();
@@ -342,8 +343,9 @@
 
             try {
                 // New Route: PUT /cart/:id/:cartId
-                const res = await fetch(`http://localhost:7071/cart/${userId}/${cartId}`, {
+                const res = await fetch(`${API_BASE_URL}/cart/${userId}/${cartId}`, {
                     method: 'PUT',
+                    credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ quantity: newQty })
                 });
@@ -363,8 +365,9 @@
 
             try {
                 // New Route: DELETE /cart/:id/:cartId
-                const res = await fetch(`http://localhost:7071/cart/${userId}/${cartId}`, {
-                    method: 'DELETE'
+                const res = await fetch(`${API_BASE_URL}/cart/${userId}/${cartId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
                 });
 
                 if (res.ok) {
@@ -382,8 +385,9 @@
 
             try {
                 // 1. Create Order on Backend (and at Razorpay)
-                const res = await fetch(`http://localhost:7071/payment/create-order`, {
+                const res = await fetch(`${API_BASE_URL}/payment/create-order`, {
                     method: 'POST',
+                    credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ user_id: userId })
                 });
@@ -408,8 +412,9 @@
                     handler: async function (response) {
                         // 3. Verify Payment on Backend
                         try {
-                            const verifyRes = await fetch(`http://localhost:7071/payment/verify`, {
+                            const verifyRes = await fetch(`${API_BASE_URL}/payment/verify`, {
                                 method: 'POST',
+                                credentials: 'include',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
                                     razorpay_order_id: response.razorpay_order_id,

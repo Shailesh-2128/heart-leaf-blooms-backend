@@ -93,21 +93,23 @@
     </div>
 
     <script>
+        const API_BASE_URL = window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:7071' : 'http://localhost:7071';
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData);
 
             try {
-                const res = await fetch('http://localhost:7071/user/login', {
+                const res = await fetch(`${API_BASE_URL}/user/login`, {
                     method: 'POST',
+                    credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
 
                 if (res.ok) {
                     const result = await res.json();
-                    localStorage.setItem('user_token', result.token);
+                    // localStorage.setItem('user_token', result.token); // Cookie used instead
                     localStorage.setItem('user_id', result.user.user_id);
                     localStorage.setItem('user_name', result.user.username);
                     alert('Login Successful!');

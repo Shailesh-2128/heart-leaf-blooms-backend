@@ -1,4 +1,4 @@
- const prisma = require("../config/prisma");
+const prisma = require("../config/prisma");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
@@ -71,10 +71,27 @@ const loginUser = async (req, res) => {
 
         const token = jwt.sign({ user_id: user.user_id }, process.env.JWT_SECRET || 'secret_key', { expiresIn: '1d' });
 
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            maxAge: 24 * 60 * 60 * 1000 // 1 day
+        });
+
         res.status(200).json({ message: "Login successful", token, user });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+};
+
+// Logout User
+const logoutUser = (req, res) => {
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax'
+    });
+    res.status(200).json({ message: "Logged out successfully" });
 };
 
 // Get User Profile
@@ -198,6 +215,7 @@ const getAllUsers = async (req, res) => {
 module.exports = {
     createUser,
     loginUser,
+    logoutUser,
     getUser,
     updateUser,
     deleteUser,

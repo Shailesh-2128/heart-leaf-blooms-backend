@@ -146,7 +146,8 @@ exports.Prisma.VendorScalarFieldEnum = {
   isVerified: 'isVerified',
   status: 'status',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  commission_rate: 'commission_rate'
 };
 
 exports.Prisma.UserScalarFieldEnum = {
@@ -198,7 +199,9 @@ exports.Prisma.ProductScalarFieldEnum = {
 exports.Prisma.ImageScalarFieldEnum = {
   image_id: 'image_id',
   product_id: 'product_id',
-  img_url: 'img_url'
+  large_url: 'large_url',
+  medium_url: 'medium_url',
+  small_url: 'small_url'
 };
 
 exports.Prisma.CategoryScalarFieldEnum = {

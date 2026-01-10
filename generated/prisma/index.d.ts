@@ -3220,8 +3220,18 @@ export namespace Prisma {
 
   export type AggregateVendor = {
     _count: VendorCountAggregateOutputType | null
+    _avg: VendorAvgAggregateOutputType | null
+    _sum: VendorSumAggregateOutputType | null
     _min: VendorMinAggregateOutputType | null
     _max: VendorMaxAggregateOutputType | null
+  }
+
+  export type VendorAvgAggregateOutputType = {
+    commission_rate: Decimal | null
+  }
+
+  export type VendorSumAggregateOutputType = {
+    commission_rate: Decimal | null
   }
 
   export type VendorMinAggregateOutputType = {
@@ -3241,6 +3251,7 @@ export namespace Prisma {
     status: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    commission_rate: Decimal | null
   }
 
   export type VendorMaxAggregateOutputType = {
@@ -3260,6 +3271,7 @@ export namespace Prisma {
     status: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    commission_rate: Decimal | null
   }
 
   export type VendorCountAggregateOutputType = {
@@ -3279,9 +3291,18 @@ export namespace Prisma {
     status: number
     createdAt: number
     updatedAt: number
+    commission_rate: number
     _all: number
   }
 
+
+  export type VendorAvgAggregateInputType = {
+    commission_rate?: true
+  }
+
+  export type VendorSumAggregateInputType = {
+    commission_rate?: true
+  }
 
   export type VendorMinAggregateInputType = {
     id?: true
@@ -3300,6 +3321,7 @@ export namespace Prisma {
     status?: true
     createdAt?: true
     updatedAt?: true
+    commission_rate?: true
   }
 
   export type VendorMaxAggregateInputType = {
@@ -3319,6 +3341,7 @@ export namespace Prisma {
     status?: true
     createdAt?: true
     updatedAt?: true
+    commission_rate?: true
   }
 
   export type VendorCountAggregateInputType = {
@@ -3338,6 +3361,7 @@ export namespace Prisma {
     status?: true
     createdAt?: true
     updatedAt?: true
+    commission_rate?: true
     _all?: true
   }
 
@@ -3379,6 +3403,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: VendorAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: VendorSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: VendorMinAggregateInputType
@@ -3409,6 +3445,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: VendorCountAggregateInputType | true
+    _avg?: VendorAvgAggregateInputType
+    _sum?: VendorSumAggregateInputType
     _min?: VendorMinAggregateInputType
     _max?: VendorMaxAggregateInputType
   }
@@ -3430,7 +3468,10 @@ export namespace Prisma {
     status: string
     createdAt: Date
     updatedAt: Date
+    commission_rate: Decimal
     _count: VendorCountAggregateOutputType | null
+    _avg: VendorAvgAggregateOutputType | null
+    _sum: VendorSumAggregateOutputType | null
     _min: VendorMinAggregateOutputType | null
     _max: VendorMaxAggregateOutputType | null
   }
@@ -3466,6 +3507,7 @@ export namespace Prisma {
     status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    commission_rate?: boolean
     products?: boolean | Vendor$productsArgs<ExtArgs>
     orderItems?: boolean | Vendor$orderItemsArgs<ExtArgs>
     commissions?: boolean | Vendor$commissionsArgs<ExtArgs>
@@ -3490,6 +3532,7 @@ export namespace Prisma {
     status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    commission_rate?: boolean
   }, ExtArgs["result"]["vendor"]>
 
   export type VendorSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3509,6 +3552,7 @@ export namespace Prisma {
     status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    commission_rate?: boolean
   }, ExtArgs["result"]["vendor"]>
 
   export type VendorSelectScalar = {
@@ -3528,9 +3572,10 @@ export namespace Prisma {
     status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    commission_rate?: boolean
   }
 
-  export type VendorOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "shopName" | "shopAddress" | "shopDescription" | "bankName" | "IFSC" | "accountNumber" | "vendorTag" | "isFeatured" | "isVerified" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["vendor"]>
+  export type VendorOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "shopName" | "shopAddress" | "shopDescription" | "bankName" | "IFSC" | "accountNumber" | "vendorTag" | "isFeatured" | "isVerified" | "status" | "createdAt" | "updatedAt" | "commission_rate", ExtArgs["result"]["vendor"]>
   export type VendorInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     products?: boolean | Vendor$productsArgs<ExtArgs>
     orderItems?: boolean | Vendor$orderItemsArgs<ExtArgs>
@@ -3566,6 +3611,7 @@ export namespace Prisma {
       status: string
       createdAt: Date
       updatedAt: Date
+      commission_rate: Prisma.Decimal
     }, ExtArgs["result"]["vendor"]>
     composites: {}
   }
@@ -4009,6 +4055,7 @@ export namespace Prisma {
     readonly status: FieldRef<"Vendor", 'String'>
     readonly createdAt: FieldRef<"Vendor", 'DateTime'>
     readonly updatedAt: FieldRef<"Vendor", 'DateTime'>
+    readonly commission_rate: FieldRef<"Vendor", 'Decimal'>
   }
     
 
@@ -10284,19 +10331,25 @@ export namespace Prisma {
   export type ImageMinAggregateOutputType = {
     image_id: number | null
     product_id: string | null
-    img_url: string | null
+    large_url: string | null
+    medium_url: string | null
+    small_url: string | null
   }
 
   export type ImageMaxAggregateOutputType = {
     image_id: number | null
     product_id: string | null
-    img_url: string | null
+    large_url: string | null
+    medium_url: string | null
+    small_url: string | null
   }
 
   export type ImageCountAggregateOutputType = {
     image_id: number
     product_id: number
-    img_url: number
+    large_url: number
+    medium_url: number
+    small_url: number
     _all: number
   }
 
@@ -10312,19 +10365,25 @@ export namespace Prisma {
   export type ImageMinAggregateInputType = {
     image_id?: true
     product_id?: true
-    img_url?: true
+    large_url?: true
+    medium_url?: true
+    small_url?: true
   }
 
   export type ImageMaxAggregateInputType = {
     image_id?: true
     product_id?: true
-    img_url?: true
+    large_url?: true
+    medium_url?: true
+    small_url?: true
   }
 
   export type ImageCountAggregateInputType = {
     image_id?: true
     product_id?: true
-    img_url?: true
+    large_url?: true
+    medium_url?: true
+    small_url?: true
     _all?: true
   }
 
@@ -10417,7 +10476,9 @@ export namespace Prisma {
   export type ImageGroupByOutputType = {
     image_id: number
     product_id: string
-    img_url: string
+    large_url: string
+    medium_url: string
+    small_url: string
     _count: ImageCountAggregateOutputType | null
     _avg: ImageAvgAggregateOutputType | null
     _sum: ImageSumAggregateOutputType | null
@@ -10442,31 +10503,39 @@ export namespace Prisma {
   export type ImageSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     image_id?: boolean
     product_id?: boolean
-    img_url?: boolean
+    large_url?: boolean
+    medium_url?: boolean
+    small_url?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["image"]>
 
   export type ImageSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     image_id?: boolean
     product_id?: boolean
-    img_url?: boolean
+    large_url?: boolean
+    medium_url?: boolean
+    small_url?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["image"]>
 
   export type ImageSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     image_id?: boolean
     product_id?: boolean
-    img_url?: boolean
+    large_url?: boolean
+    medium_url?: boolean
+    small_url?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["image"]>
 
   export type ImageSelectScalar = {
     image_id?: boolean
     product_id?: boolean
-    img_url?: boolean
+    large_url?: boolean
+    medium_url?: boolean
+    small_url?: boolean
   }
 
-  export type ImageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"image_id" | "product_id" | "img_url", ExtArgs["result"]["image"]>
+  export type ImageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"image_id" | "product_id" | "large_url" | "medium_url" | "small_url", ExtArgs["result"]["image"]>
   export type ImageInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }
@@ -10485,7 +10554,9 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       image_id: number
       product_id: string
-      img_url: string
+      large_url: string
+      medium_url: string
+      small_url: string
     }, ExtArgs["result"]["image"]>
     composites: {}
   }
@@ -10912,7 +10983,9 @@ export namespace Prisma {
   interface ImageFieldRefs {
     readonly image_id: FieldRef<"Image", 'Int'>
     readonly product_id: FieldRef<"Image", 'String'>
-    readonly img_url: FieldRef<"Image", 'String'>
+    readonly large_url: FieldRef<"Image", 'String'>
+    readonly medium_url: FieldRef<"Image", 'String'>
+    readonly small_url: FieldRef<"Image", 'String'>
   }
     
 
@@ -16096,7 +16169,7 @@ export namespace Prisma {
 
   export type PaymentGroupByOutputType = {
     payment_id: string
-    order_id: string
+    order_id: string | null
     vendor_id: string | null
     amount: Decimal
     payment_method: string
@@ -16137,7 +16210,7 @@ export namespace Prisma {
     transaction_id?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    order?: boolean | OrderDefaultArgs<ExtArgs>
+    order?: boolean | Payment$orderArgs<ExtArgs>
     vendor?: boolean | Payment$vendorArgs<ExtArgs>
   }, ExtArgs["result"]["payment"]>
 
@@ -16152,7 +16225,7 @@ export namespace Prisma {
     transaction_id?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    order?: boolean | OrderDefaultArgs<ExtArgs>
+    order?: boolean | Payment$orderArgs<ExtArgs>
     vendor?: boolean | Payment$vendorArgs<ExtArgs>
   }, ExtArgs["result"]["payment"]>
 
@@ -16167,7 +16240,7 @@ export namespace Prisma {
     transaction_id?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    order?: boolean | OrderDefaultArgs<ExtArgs>
+    order?: boolean | Payment$orderArgs<ExtArgs>
     vendor?: boolean | Payment$vendorArgs<ExtArgs>
   }, ExtArgs["result"]["payment"]>
 
@@ -16186,27 +16259,27 @@ export namespace Prisma {
 
   export type PaymentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"payment_id" | "order_id" | "vendor_id" | "amount" | "payment_method" | "payment_status" | "payment_type" | "transaction_id" | "createdAt" | "updatedAt", ExtArgs["result"]["payment"]>
   export type PaymentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    order?: boolean | OrderDefaultArgs<ExtArgs>
+    order?: boolean | Payment$orderArgs<ExtArgs>
     vendor?: boolean | Payment$vendorArgs<ExtArgs>
   }
   export type PaymentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    order?: boolean | OrderDefaultArgs<ExtArgs>
+    order?: boolean | Payment$orderArgs<ExtArgs>
     vendor?: boolean | Payment$vendorArgs<ExtArgs>
   }
   export type PaymentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    order?: boolean | OrderDefaultArgs<ExtArgs>
+    order?: boolean | Payment$orderArgs<ExtArgs>
     vendor?: boolean | Payment$vendorArgs<ExtArgs>
   }
 
   export type $PaymentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Payment"
     objects: {
-      order: Prisma.$OrderPayload<ExtArgs>
+      order: Prisma.$OrderPayload<ExtArgs> | null
       vendor: Prisma.$VendorPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       payment_id: string
-      order_id: string
+      order_id: string | null
       vendor_id: string | null
       amount: Prisma.Decimal
       payment_method: string
@@ -16609,7 +16682,7 @@ export namespace Prisma {
    */
   export interface Prisma__PaymentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    order<T extends OrderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrderDefaultArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    order<T extends Payment$orderArgs<ExtArgs> = {}>(args?: Subset<T, Payment$orderArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     vendor<T extends Payment$vendorArgs<ExtArgs> = {}>(args?: Subset<T, Payment$vendorArgs<ExtArgs>>): Prisma__VendorClient<$Result.GetResult<Prisma.$VendorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -17046,6 +17119,25 @@ export namespace Prisma {
   }
 
   /**
+   * Payment.order
+   */
+  export type Payment$orderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    where?: OrderWhereInput
+  }
+
+  /**
    * Payment.vendor
    */
   export type Payment$vendorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -17125,7 +17217,8 @@ export namespace Prisma {
     isVerified: 'isVerified',
     status: 'status',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    commission_rate: 'commission_rate'
   };
 
   export type VendorScalarFieldEnum = (typeof VendorScalarFieldEnum)[keyof typeof VendorScalarFieldEnum]
@@ -17195,7 +17288,9 @@ export namespace Prisma {
   export const ImageScalarFieldEnum: {
     image_id: 'image_id',
     product_id: 'product_id',
-    img_url: 'img_url'
+    large_url: 'large_url',
+    medium_url: 'medium_url',
+    small_url: 'small_url'
   };
 
   export type ImageScalarFieldEnum = (typeof ImageScalarFieldEnum)[keyof typeof ImageScalarFieldEnum]
@@ -17332,20 +17427,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Int'
-   */
-  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int[]'
-   */
-  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-  /**
    * Reference to a field of type 'Decimal'
    */
   export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
@@ -17356,6 +17437,20 @@ export namespace Prisma {
    * Reference to a field of type 'Decimal[]'
    */
   export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int'
+   */
+  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int[]'
+   */
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 
@@ -17453,6 +17548,7 @@ export namespace Prisma {
     status?: StringFilter<"Vendor"> | string
     createdAt?: DateTimeFilter<"Vendor"> | Date | string
     updatedAt?: DateTimeFilter<"Vendor"> | Date | string
+    commission_rate?: DecimalFilter<"Vendor"> | Decimal | DecimalJsLike | number | string
     products?: ProductListRelationFilter
     orderItems?: OrderItemListRelationFilter
     commissions?: CommissionListRelationFilter
@@ -17476,6 +17572,7 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    commission_rate?: SortOrder
     products?: ProductOrderByRelationAggregateInput
     orderItems?: OrderItemOrderByRelationAggregateInput
     commissions?: CommissionOrderByRelationAggregateInput
@@ -17502,6 +17599,7 @@ export namespace Prisma {
     status?: StringFilter<"Vendor"> | string
     createdAt?: DateTimeFilter<"Vendor"> | Date | string
     updatedAt?: DateTimeFilter<"Vendor"> | Date | string
+    commission_rate?: DecimalFilter<"Vendor"> | Decimal | DecimalJsLike | number | string
     products?: ProductListRelationFilter
     orderItems?: OrderItemListRelationFilter
     commissions?: CommissionListRelationFilter
@@ -17525,9 +17623,12 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    commission_rate?: SortOrder
     _count?: VendorCountOrderByAggregateInput
+    _avg?: VendorAvgOrderByAggregateInput
     _max?: VendorMaxOrderByAggregateInput
     _min?: VendorMinOrderByAggregateInput
+    _sum?: VendorSumOrderByAggregateInput
   }
 
   export type VendorScalarWhereWithAggregatesInput = {
@@ -17550,6 +17651,7 @@ export namespace Prisma {
     status?: StringWithAggregatesFilter<"Vendor"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Vendor"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Vendor"> | Date | string
+    commission_rate?: DecimalWithAggregatesFilter<"Vendor"> | Decimal | DecimalJsLike | number | string
   }
 
   export type UserWhereInput = {
@@ -17901,14 +18003,18 @@ export namespace Prisma {
     NOT?: ImageWhereInput | ImageWhereInput[]
     image_id?: IntFilter<"Image"> | number
     product_id?: StringFilter<"Image"> | string
-    img_url?: StringFilter<"Image"> | string
+    large_url?: StringFilter<"Image"> | string
+    medium_url?: StringFilter<"Image"> | string
+    small_url?: StringFilter<"Image"> | string
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
   }
 
   export type ImageOrderByWithRelationInput = {
     image_id?: SortOrder
     product_id?: SortOrder
-    img_url?: SortOrder
+    large_url?: SortOrder
+    medium_url?: SortOrder
+    small_url?: SortOrder
     product?: ProductOrderByWithRelationInput
   }
 
@@ -17918,14 +18024,18 @@ export namespace Prisma {
     OR?: ImageWhereInput[]
     NOT?: ImageWhereInput | ImageWhereInput[]
     product_id?: StringFilter<"Image"> | string
-    img_url?: StringFilter<"Image"> | string
+    large_url?: StringFilter<"Image"> | string
+    medium_url?: StringFilter<"Image"> | string
+    small_url?: StringFilter<"Image"> | string
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
   }, "image_id">
 
   export type ImageOrderByWithAggregationInput = {
     image_id?: SortOrder
     product_id?: SortOrder
-    img_url?: SortOrder
+    large_url?: SortOrder
+    medium_url?: SortOrder
+    small_url?: SortOrder
     _count?: ImageCountOrderByAggregateInput
     _avg?: ImageAvgOrderByAggregateInput
     _max?: ImageMaxOrderByAggregateInput
@@ -17939,7 +18049,9 @@ export namespace Prisma {
     NOT?: ImageScalarWhereWithAggregatesInput | ImageScalarWhereWithAggregatesInput[]
     image_id?: IntWithAggregatesFilter<"Image"> | number
     product_id?: StringWithAggregatesFilter<"Image"> | string
-    img_url?: StringWithAggregatesFilter<"Image"> | string
+    large_url?: StringWithAggregatesFilter<"Image"> | string
+    medium_url?: StringWithAggregatesFilter<"Image"> | string
+    small_url?: StringWithAggregatesFilter<"Image"> | string
   }
 
   export type CategoryWhereInput = {
@@ -18223,7 +18335,7 @@ export namespace Prisma {
     OR?: PaymentWhereInput[]
     NOT?: PaymentWhereInput | PaymentWhereInput[]
     payment_id?: StringFilter<"Payment"> | string
-    order_id?: StringFilter<"Payment"> | string
+    order_id?: StringNullableFilter<"Payment"> | string | null
     vendor_id?: StringNullableFilter<"Payment"> | string | null
     amount?: DecimalFilter<"Payment"> | Decimal | DecimalJsLike | number | string
     payment_method?: StringFilter<"Payment"> | string
@@ -18232,13 +18344,13 @@ export namespace Prisma {
     transaction_id?: StringNullableFilter<"Payment"> | string | null
     createdAt?: DateTimeFilter<"Payment"> | Date | string
     updatedAt?: DateTimeFilter<"Payment"> | Date | string
-    order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
+    order?: XOR<OrderNullableScalarRelationFilter, OrderWhereInput> | null
     vendor?: XOR<VendorNullableScalarRelationFilter, VendorWhereInput> | null
   }
 
   export type PaymentOrderByWithRelationInput = {
     payment_id?: SortOrder
-    order_id?: SortOrder
+    order_id?: SortOrderInput | SortOrder
     vendor_id?: SortOrderInput | SortOrder
     amount?: SortOrder
     payment_method?: SortOrder
@@ -18256,7 +18368,7 @@ export namespace Prisma {
     AND?: PaymentWhereInput | PaymentWhereInput[]
     OR?: PaymentWhereInput[]
     NOT?: PaymentWhereInput | PaymentWhereInput[]
-    order_id?: StringFilter<"Payment"> | string
+    order_id?: StringNullableFilter<"Payment"> | string | null
     vendor_id?: StringNullableFilter<"Payment"> | string | null
     amount?: DecimalFilter<"Payment"> | Decimal | DecimalJsLike | number | string
     payment_method?: StringFilter<"Payment"> | string
@@ -18265,13 +18377,13 @@ export namespace Prisma {
     transaction_id?: StringNullableFilter<"Payment"> | string | null
     createdAt?: DateTimeFilter<"Payment"> | Date | string
     updatedAt?: DateTimeFilter<"Payment"> | Date | string
-    order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
+    order?: XOR<OrderNullableScalarRelationFilter, OrderWhereInput> | null
     vendor?: XOR<VendorNullableScalarRelationFilter, VendorWhereInput> | null
   }, "payment_id">
 
   export type PaymentOrderByWithAggregationInput = {
     payment_id?: SortOrder
-    order_id?: SortOrder
+    order_id?: SortOrderInput | SortOrder
     vendor_id?: SortOrderInput | SortOrder
     amount?: SortOrder
     payment_method?: SortOrder
@@ -18292,7 +18404,7 @@ export namespace Prisma {
     OR?: PaymentScalarWhereWithAggregatesInput[]
     NOT?: PaymentScalarWhereWithAggregatesInput | PaymentScalarWhereWithAggregatesInput[]
     payment_id?: StringWithAggregatesFilter<"Payment"> | string
-    order_id?: StringWithAggregatesFilter<"Payment"> | string
+    order_id?: StringNullableWithAggregatesFilter<"Payment"> | string | null
     vendor_id?: StringNullableWithAggregatesFilter<"Payment"> | string | null
     amount?: DecimalWithAggregatesFilter<"Payment"> | Decimal | DecimalJsLike | number | string
     payment_method?: StringWithAggregatesFilter<"Payment"> | string
@@ -18383,6 +18495,7 @@ export namespace Prisma {
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    commission_rate?: Decimal | DecimalJsLike | number | string
     products?: ProductCreateNestedManyWithoutVendorInput
     orderItems?: OrderItemCreateNestedManyWithoutVendorInput
     commissions?: CommissionCreateNestedManyWithoutVendorInput
@@ -18406,6 +18519,7 @@ export namespace Prisma {
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    commission_rate?: Decimal | DecimalJsLike | number | string
     products?: ProductUncheckedCreateNestedManyWithoutVendorInput
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutVendorInput
     commissions?: CommissionUncheckedCreateNestedManyWithoutVendorInput
@@ -18429,6 +18543,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     products?: ProductUpdateManyWithoutVendorNestedInput
     orderItems?: OrderItemUpdateManyWithoutVendorNestedInput
     commissions?: CommissionUpdateManyWithoutVendorNestedInput
@@ -18452,6 +18567,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     products?: ProductUncheckedUpdateManyWithoutVendorNestedInput
     orderItems?: OrderItemUncheckedUpdateManyWithoutVendorNestedInput
     commissions?: CommissionUncheckedUpdateManyWithoutVendorNestedInput
@@ -18475,6 +18591,7 @@ export namespace Prisma {
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    commission_rate?: Decimal | DecimalJsLike | number | string
   }
 
   export type VendorUpdateManyMutationInput = {
@@ -18494,6 +18611,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
   }
 
   export type VendorUncheckedUpdateManyInput = {
@@ -18513,6 +18631,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
   }
 
   export type UserCreateInput = {
@@ -18855,41 +18974,55 @@ export namespace Prisma {
   }
 
   export type ImageCreateInput = {
-    img_url: string
+    large_url: string
+    medium_url: string
+    small_url: string
     product: ProductCreateNestedOneWithoutImagesInput
   }
 
   export type ImageUncheckedCreateInput = {
     image_id?: number
     product_id: string
-    img_url: string
+    large_url: string
+    medium_url: string
+    small_url: string
   }
 
   export type ImageUpdateInput = {
-    img_url?: StringFieldUpdateOperationsInput | string
+    large_url?: StringFieldUpdateOperationsInput | string
+    medium_url?: StringFieldUpdateOperationsInput | string
+    small_url?: StringFieldUpdateOperationsInput | string
     product?: ProductUpdateOneRequiredWithoutImagesNestedInput
   }
 
   export type ImageUncheckedUpdateInput = {
     image_id?: IntFieldUpdateOperationsInput | number
     product_id?: StringFieldUpdateOperationsInput | string
-    img_url?: StringFieldUpdateOperationsInput | string
+    large_url?: StringFieldUpdateOperationsInput | string
+    medium_url?: StringFieldUpdateOperationsInput | string
+    small_url?: StringFieldUpdateOperationsInput | string
   }
 
   export type ImageCreateManyInput = {
     image_id?: number
     product_id: string
-    img_url: string
+    large_url: string
+    medium_url: string
+    small_url: string
   }
 
   export type ImageUpdateManyMutationInput = {
-    img_url?: StringFieldUpdateOperationsInput | string
+    large_url?: StringFieldUpdateOperationsInput | string
+    medium_url?: StringFieldUpdateOperationsInput | string
+    small_url?: StringFieldUpdateOperationsInput | string
   }
 
   export type ImageUncheckedUpdateManyInput = {
     image_id?: IntFieldUpdateOperationsInput | number
     product_id?: StringFieldUpdateOperationsInput | string
-    img_url?: StringFieldUpdateOperationsInput | string
+    large_url?: StringFieldUpdateOperationsInput | string
+    medium_url?: StringFieldUpdateOperationsInput | string
+    small_url?: StringFieldUpdateOperationsInput | string
   }
 
   export type CategoryCreateInput = {
@@ -19174,13 +19307,13 @@ export namespace Prisma {
     transaction_id?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    order: OrderCreateNestedOneWithoutPaymentsInput
+    order?: OrderCreateNestedOneWithoutPaymentsInput
     vendor?: VendorCreateNestedOneWithoutPaymentsInput
   }
 
   export type PaymentUncheckedCreateInput = {
     payment_id?: string
-    order_id: string
+    order_id?: string | null
     vendor_id?: string | null
     amount: Decimal | DecimalJsLike | number | string
     payment_method: string
@@ -19200,13 +19333,13 @@ export namespace Prisma {
     transaction_id?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    order?: OrderUpdateOneRequiredWithoutPaymentsNestedInput
+    order?: OrderUpdateOneWithoutPaymentsNestedInput
     vendor?: VendorUpdateOneWithoutPaymentsNestedInput
   }
 
   export type PaymentUncheckedUpdateInput = {
     payment_id?: StringFieldUpdateOperationsInput | string
-    order_id?: StringFieldUpdateOperationsInput | string
+    order_id?: NullableStringFieldUpdateOperationsInput | string | null
     vendor_id?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     payment_method?: StringFieldUpdateOperationsInput | string
@@ -19219,7 +19352,7 @@ export namespace Prisma {
 
   export type PaymentCreateManyInput = {
     payment_id?: string
-    order_id: string
+    order_id?: string | null
     vendor_id?: string | null
     amount: Decimal | DecimalJsLike | number | string
     payment_method: string
@@ -19243,7 +19376,7 @@ export namespace Prisma {
 
   export type PaymentUncheckedUpdateManyInput = {
     payment_id?: StringFieldUpdateOperationsInput | string
-    order_id?: StringFieldUpdateOperationsInput | string
+    order_id?: NullableStringFieldUpdateOperationsInput | string | null
     vendor_id?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     payment_method?: StringFieldUpdateOperationsInput | string
@@ -19359,6 +19492,17 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type DecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
   export type ProductListRelationFilter = {
     every?: ProductWhereInput
     some?: ProductWhereInput
@@ -19421,6 +19565,11 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    commission_rate?: SortOrder
+  }
+
+  export type VendorAvgOrderByAggregateInput = {
+    commission_rate?: SortOrder
   }
 
   export type VendorMaxOrderByAggregateInput = {
@@ -19440,6 +19589,7 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    commission_rate?: SortOrder
   }
 
   export type VendorMinOrderByAggregateInput = {
@@ -19459,6 +19609,11 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    commission_rate?: SortOrder
+  }
+
+  export type VendorSumOrderByAggregateInput = {
+    commission_rate?: SortOrder
   }
 
   export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -19485,6 +19640,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
   }
 
   export type AddressListRelationFilter = {
@@ -19683,17 +19854,6 @@ export namespace Prisma {
     wishlist_id?: SortOrder
   }
 
-  export type DecimalFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
-  }
-
   export type DecimalNullableFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
     in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
@@ -19782,22 +19942,6 @@ export namespace Prisma {
     discount_price?: SortOrder
   }
 
-  export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedDecimalFilter<$PrismaModel>
-    _sum?: NestedDecimalFilter<$PrismaModel>
-    _min?: NestedDecimalFilter<$PrismaModel>
-    _max?: NestedDecimalFilter<$PrismaModel>
-  }
-
   export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
     in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
@@ -19817,7 +19961,9 @@ export namespace Prisma {
   export type ImageCountOrderByAggregateInput = {
     image_id?: SortOrder
     product_id?: SortOrder
-    img_url?: SortOrder
+    large_url?: SortOrder
+    medium_url?: SortOrder
+    small_url?: SortOrder
   }
 
   export type ImageAvgOrderByAggregateInput = {
@@ -19827,13 +19973,17 @@ export namespace Prisma {
   export type ImageMaxOrderByAggregateInput = {
     image_id?: SortOrder
     product_id?: SortOrder
-    img_url?: SortOrder
+    large_url?: SortOrder
+    medium_url?: SortOrder
+    small_url?: SortOrder
   }
 
   export type ImageMinOrderByAggregateInput = {
     image_id?: SortOrder
     product_id?: SortOrder
-    img_url?: SortOrder
+    large_url?: SortOrder
+    medium_url?: SortOrder
+    small_url?: SortOrder
   }
 
   export type ImageSumOrderByAggregateInput = {
@@ -19993,6 +20143,11 @@ export namespace Prisma {
     commission_amount?: SortOrder
   }
 
+  export type OrderNullableScalarRelationFilter = {
+    is?: OrderWhereInput | null
+    isNot?: OrderWhereInput | null
+  }
+
   export type VendorNullableScalarRelationFilter = {
     is?: VendorWhereInput | null
     isNot?: VendorWhereInput | null
@@ -20115,6 +20270,14 @@ export namespace Prisma {
 
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
+  }
+
+  export type DecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
   }
 
   export type ProductUpdateManyWithoutVendorNestedInput = {
@@ -20543,14 +20706,6 @@ export namespace Prisma {
     connect?: OrderItemWhereUniqueInput | OrderItemWhereUniqueInput[]
   }
 
-  export type DecimalFieldUpdateOperationsInput = {
-    set?: Decimal | DecimalJsLike | number | string
-    increment?: Decimal | DecimalJsLike | number | string
-    decrement?: Decimal | DecimalJsLike | number | string
-    multiply?: Decimal | DecimalJsLike | number | string
-    divide?: Decimal | DecimalJsLike | number | string
-  }
-
   export type NullableDecimalFieldUpdateOperationsInput = {
     set?: Decimal | DecimalJsLike | number | string | null
     increment?: Decimal | DecimalJsLike | number | string
@@ -20965,10 +21120,12 @@ export namespace Prisma {
     connect?: VendorWhereUniqueInput
   }
 
-  export type OrderUpdateOneRequiredWithoutPaymentsNestedInput = {
+  export type OrderUpdateOneWithoutPaymentsNestedInput = {
     create?: XOR<OrderCreateWithoutPaymentsInput, OrderUncheckedCreateWithoutPaymentsInput>
     connectOrCreate?: OrderCreateOrConnectWithoutPaymentsInput
     upsert?: OrderUpsertWithoutPaymentsInput
+    disconnect?: OrderWhereInput | boolean
+    delete?: OrderWhereInput | boolean
     connect?: OrderWhereUniqueInput
     update?: XOR<XOR<OrderUpdateToOneWithWhereWithoutPaymentsInput, OrderUpdateWithoutPaymentsInput>, OrderUncheckedUpdateWithoutPaymentsInput>
   }
@@ -21069,6 +21226,17 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type NestedDecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -21105,6 +21273,22 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
+  export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -21132,17 +21316,6 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
-  export type NestedDecimalFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
-  }
-
   export type NestedDecimalNullableFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
     in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
@@ -21152,22 +21325,6 @@ export namespace Prisma {
     gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
-  }
-
-  export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedDecimalFilter<$PrismaModel>
-    _sum?: NestedDecimalFilter<$PrismaModel>
-    _min?: NestedDecimalFilter<$PrismaModel>
-    _max?: NestedDecimalFilter<$PrismaModel>
   }
 
   export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -21299,12 +21456,12 @@ export namespace Prisma {
     transaction_id?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    order: OrderCreateNestedOneWithoutPaymentsInput
+    order?: OrderCreateNestedOneWithoutPaymentsInput
   }
 
   export type PaymentUncheckedCreateWithoutVendorInput = {
     payment_id?: string
-    order_id: string
+    order_id?: string | null
     amount: Decimal | DecimalJsLike | number | string
     payment_method: string
     payment_status?: string
@@ -21438,7 +21595,7 @@ export namespace Prisma {
     OR?: PaymentScalarWhereInput[]
     NOT?: PaymentScalarWhereInput | PaymentScalarWhereInput[]
     payment_id?: StringFilter<"Payment"> | string
-    order_id?: StringFilter<"Payment"> | string
+    order_id?: StringNullableFilter<"Payment"> | string | null
     vendor_id?: StringNullableFilter<"Payment"> | string | null
     amount?: DecimalFilter<"Payment"> | Decimal | DecimalJsLike | number | string
     payment_method?: StringFilter<"Payment"> | string
@@ -22041,6 +22198,7 @@ export namespace Prisma {
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    commission_rate?: Decimal | DecimalJsLike | number | string
     orderItems?: OrderItemCreateNestedManyWithoutVendorInput
     commissions?: CommissionCreateNestedManyWithoutVendorInput
     payments?: PaymentCreateNestedManyWithoutVendorInput
@@ -22063,6 +22221,7 @@ export namespace Prisma {
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    commission_rate?: Decimal | DecimalJsLike | number | string
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutVendorInput
     commissions?: CommissionUncheckedCreateNestedManyWithoutVendorInput
     payments?: PaymentUncheckedCreateNestedManyWithoutVendorInput
@@ -22092,12 +22251,16 @@ export namespace Prisma {
   }
 
   export type ImageCreateWithoutProductInput = {
-    img_url: string
+    large_url: string
+    medium_url: string
+    small_url: string
   }
 
   export type ImageUncheckedCreateWithoutProductInput = {
     image_id?: number
-    img_url: string
+    large_url: string
+    medium_url: string
+    small_url: string
   }
 
   export type ImageCreateOrConnectWithoutProductInput = {
@@ -22210,6 +22373,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     orderItems?: OrderItemUpdateManyWithoutVendorNestedInput
     commissions?: CommissionUpdateManyWithoutVendorNestedInput
     payments?: PaymentUpdateManyWithoutVendorNestedInput
@@ -22232,6 +22396,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     orderItems?: OrderItemUncheckedUpdateManyWithoutVendorNestedInput
     commissions?: CommissionUncheckedUpdateManyWithoutVendorNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutVendorNestedInput
@@ -22283,7 +22448,9 @@ export namespace Prisma {
     NOT?: ImageScalarWhereInput | ImageScalarWhereInput[]
     image_id?: IntFilter<"Image"> | number
     product_id?: StringFilter<"Image"> | string
-    img_url?: StringFilter<"Image"> | string
+    large_url?: StringFilter<"Image"> | string
+    medium_url?: StringFilter<"Image"> | string
+    small_url?: StringFilter<"Image"> | string
   }
 
   export type CartUpsertWithWhereUniqueWithoutProductInput = {
@@ -22775,6 +22942,7 @@ export namespace Prisma {
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    commission_rate?: Decimal | DecimalJsLike | number | string
     products?: ProductCreateNestedManyWithoutVendorInput
     commissions?: CommissionCreateNestedManyWithoutVendorInput
     payments?: PaymentCreateNestedManyWithoutVendorInput
@@ -22797,6 +22965,7 @@ export namespace Prisma {
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    commission_rate?: Decimal | DecimalJsLike | number | string
     products?: ProductUncheckedCreateNestedManyWithoutVendorInput
     commissions?: CommissionUncheckedCreateNestedManyWithoutVendorInput
     payments?: PaymentUncheckedCreateNestedManyWithoutVendorInput
@@ -22917,6 +23086,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     products?: ProductUpdateManyWithoutVendorNestedInput
     commissions?: CommissionUpdateManyWithoutVendorNestedInput
     payments?: PaymentUpdateManyWithoutVendorNestedInput
@@ -22939,6 +23109,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     products?: ProductUncheckedUpdateManyWithoutVendorNestedInput
     commissions?: CommissionUncheckedUpdateManyWithoutVendorNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutVendorNestedInput
@@ -22961,6 +23132,7 @@ export namespace Prisma {
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    commission_rate?: Decimal | DecimalJsLike | number | string
     products?: ProductCreateNestedManyWithoutVendorInput
     orderItems?: OrderItemCreateNestedManyWithoutVendorInput
     payments?: PaymentCreateNestedManyWithoutVendorInput
@@ -22983,6 +23155,7 @@ export namespace Prisma {
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    commission_rate?: Decimal | DecimalJsLike | number | string
     products?: ProductUncheckedCreateNestedManyWithoutVendorInput
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutVendorInput
     payments?: PaymentUncheckedCreateNestedManyWithoutVendorInput
@@ -23050,6 +23223,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     products?: ProductUpdateManyWithoutVendorNestedInput
     orderItems?: OrderItemUpdateManyWithoutVendorNestedInput
     payments?: PaymentUpdateManyWithoutVendorNestedInput
@@ -23072,6 +23246,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     products?: ProductUncheckedUpdateManyWithoutVendorNestedInput
     orderItems?: OrderItemUncheckedUpdateManyWithoutVendorNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutVendorNestedInput
@@ -23158,6 +23333,7 @@ export namespace Prisma {
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    commission_rate?: Decimal | DecimalJsLike | number | string
     products?: ProductCreateNestedManyWithoutVendorInput
     orderItems?: OrderItemCreateNestedManyWithoutVendorInput
     commissions?: CommissionCreateNestedManyWithoutVendorInput
@@ -23180,6 +23356,7 @@ export namespace Prisma {
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    commission_rate?: Decimal | DecimalJsLike | number | string
     products?: ProductUncheckedCreateNestedManyWithoutVendorInput
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutVendorInput
     commissions?: CommissionUncheckedCreateNestedManyWithoutVendorInput
@@ -23253,6 +23430,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     products?: ProductUpdateManyWithoutVendorNestedInput
     orderItems?: OrderItemUpdateManyWithoutVendorNestedInput
     commissions?: CommissionUpdateManyWithoutVendorNestedInput
@@ -23275,6 +23453,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    commission_rate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     products?: ProductUncheckedUpdateManyWithoutVendorNestedInput
     orderItems?: OrderItemUncheckedUpdateManyWithoutVendorNestedInput
     commissions?: CommissionUncheckedUpdateManyWithoutVendorNestedInput
@@ -23315,7 +23494,7 @@ export namespace Prisma {
 
   export type PaymentCreateManyVendorInput = {
     payment_id?: string
-    order_id: string
+    order_id?: string | null
     amount: Decimal | DecimalJsLike | number | string
     payment_method: string
     payment_status?: string
@@ -23441,12 +23620,12 @@ export namespace Prisma {
     transaction_id?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    order?: OrderUpdateOneRequiredWithoutPaymentsNestedInput
+    order?: OrderUpdateOneWithoutPaymentsNestedInput
   }
 
   export type PaymentUncheckedUpdateWithoutVendorInput = {
     payment_id?: StringFieldUpdateOperationsInput | string
-    order_id?: StringFieldUpdateOperationsInput | string
+    order_id?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     payment_method?: StringFieldUpdateOperationsInput | string
     payment_status?: StringFieldUpdateOperationsInput | string
@@ -23458,7 +23637,7 @@ export namespace Prisma {
 
   export type PaymentUncheckedUpdateManyWithoutVendorInput = {
     payment_id?: StringFieldUpdateOperationsInput | string
-    order_id?: StringFieldUpdateOperationsInput | string
+    order_id?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     payment_method?: StringFieldUpdateOperationsInput | string
     payment_status?: StringFieldUpdateOperationsInput | string
@@ -23585,7 +23764,9 @@ export namespace Prisma {
 
   export type ImageCreateManyProductInput = {
     image_id?: number
-    img_url: string
+    large_url: string
+    medium_url: string
+    small_url: string
   }
 
   export type CartCreateManyProductInput = {
@@ -23611,17 +23792,23 @@ export namespace Prisma {
   }
 
   export type ImageUpdateWithoutProductInput = {
-    img_url?: StringFieldUpdateOperationsInput | string
+    large_url?: StringFieldUpdateOperationsInput | string
+    medium_url?: StringFieldUpdateOperationsInput | string
+    small_url?: StringFieldUpdateOperationsInput | string
   }
 
   export type ImageUncheckedUpdateWithoutProductInput = {
     image_id?: IntFieldUpdateOperationsInput | number
-    img_url?: StringFieldUpdateOperationsInput | string
+    large_url?: StringFieldUpdateOperationsInput | string
+    medium_url?: StringFieldUpdateOperationsInput | string
+    small_url?: StringFieldUpdateOperationsInput | string
   }
 
   export type ImageUncheckedUpdateManyWithoutProductInput = {
     image_id?: IntFieldUpdateOperationsInput | number
-    img_url?: StringFieldUpdateOperationsInput | string
+    large_url?: StringFieldUpdateOperationsInput | string
+    medium_url?: StringFieldUpdateOperationsInput | string
+    small_url?: StringFieldUpdateOperationsInput | string
   }
 
   export type CartUpdateWithoutProductInput = {
