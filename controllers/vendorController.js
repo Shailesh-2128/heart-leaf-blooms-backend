@@ -83,17 +83,17 @@ const loginVendor = async (req, res) => {
             return res.status(401).json({ error: "Invalid credentials" });
         }
 
-        const token = jwt.sign({ id: vendor.id, role: 'vendor' }, process.env.JWT_SECRET || 'secret_key', { expiresIn: '1d' });
-        console.log('Vendor Login Token:', token);
+        const vendor_token = jwt.sign({ id: vendor.id, role: 'vendor' }, process.env.JWT_SECRET || 'secret_key', { expiresIn: '1d' });
+        console.log('Vendor Login Token:', vendor_token);
 
-        res.cookie('vendor_token', token, {
+        res.cookie('vendor_token', vendor_token, {
             httpOnly: true,
             secure: false, // Set to true in production if using HTTPS
             sameSite: 'lax',
             maxAge: 24 * 60 * 60 * 1000 // 1 day
         });
 
-        res.status(200).json({ message: "Login successful", token, vendor });
+        res.status(200).json({ message: "Login successful", vendor_token: vendor_token, vendor });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

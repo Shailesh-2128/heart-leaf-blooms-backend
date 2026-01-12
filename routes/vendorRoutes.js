@@ -138,12 +138,12 @@ vendorRoute.post("/register", createVendor);
  *           schema:
  *             type: object
  *             required:
- *               - email
+ *               - vendorId
  *               - password
  *             properties:
- *               email:
+ *               vendorId:
  *                 type: string
- *                 example: vendor@example.com
+ *                 example: 677e2b2d3c4d5e6f7a8b9c0d
  *               password:
  *                 type: string
  *                 example: secret
@@ -157,7 +157,7 @@ vendorRoute.post("/register", createVendor);
  *               properties:
  *                 message:
  *                   type: string
- *                 token:
+ *                 vendor_token:
  *                   type: string
  *                 vendor:
  *                   $ref: '#/components/schemas/Vendor'
@@ -198,7 +198,7 @@ vendorRoute.post("/logout", logoutVendor);
  *               items:
  *                 $ref: '#/components/schemas/Vendor'
  */
-vendorRoute.get("/", getAllVendors);
+vendorRoute.get("/", verifyToken,getAllVendors);
 
 /**
  * @swagger
