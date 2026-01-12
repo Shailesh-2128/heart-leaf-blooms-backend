@@ -9,7 +9,8 @@
     "seed:cv": "node seeds/seed_categories_vendors.js",
     "seed:products": "node seeds/seed_products.js",
     "seed:single": "node seeds/seed_single_vendor.js",
-    "clean:db": "node seeds/clean_data.js"
+    "clean:db": "node seeds/clean_data.js",
+    "generate": "prisma generate --schema=models/schema.prisma"
   },
   "keywords": [],
   "author": "",
