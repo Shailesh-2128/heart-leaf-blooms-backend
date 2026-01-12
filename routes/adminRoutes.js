@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createAdmin, loginAdmin, logoutAdmin, displayAdmin, updateAdmin, getVendorPayoutStats } = require('../controllers/adminCotrollers');
+const { createAdmin, loginAdmin, logoutAdmin, displayAdmin, updateAdmin, getVendorPayoutStats, listVendors } = require('../controllers/adminCotrollers');
 const verifyToken = require('../middlewares/authMiddleware');
 
 /**
@@ -211,5 +211,25 @@ router.put('/update/:id', verifyToken, updateAdmin);
  */
 router.get('/payout-stats', verifyToken, getVendorPayoutStats);
 // router.get('/payout-stats', getVendorPayoutStats); // Removed duplicate unprotected route
+
+/**
+ * @swagger
+ * /admin/vendor-list:
+ *   get:
+ *     summary: Get all vendors (Admin only)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all vendors
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Vendor'
+ */
+router.get('/vendor-list', verifyToken, listVendors);
 
 module.exports = router;

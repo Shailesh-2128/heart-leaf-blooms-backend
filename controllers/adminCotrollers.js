@@ -208,11 +208,21 @@ const getVendorPayoutStats = async (req, res) => {
     }
 };
 
+const listVendors = async (req, res) => {
+    try {
+        const vendors = await prisma.vendor.findMany();
+        res.status(200).json(vendors);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     createAdmin,
     loginAdmin,
     logoutAdmin,
     displayAdmin,
     updateAdmin,
-    getVendorPayoutStats
+    getVendorPayoutStats,
+    listVendors
 };

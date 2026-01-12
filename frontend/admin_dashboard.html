@@ -403,7 +403,7 @@
 
         async function loadVendors() {
             try {
-                const res = await fetch(`${API_BASE_URL}/vendor/`, { credentials: 'include' });
+                const res = await fetch(`${API_BASE_URL}/admin/vendor-list`, { credentials: 'include' });
                 const vendors = await res.json();
                 const tbody = document.getElementById('vendorList');
                 tbody.innerHTML = '';
