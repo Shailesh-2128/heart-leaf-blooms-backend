@@ -10,6 +10,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const adminProductRoutes = require("./routes/adminProductRoutes");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
 const compression = require("compression");
@@ -44,6 +45,7 @@ app.get("/", (req, res) => {
 
 app.use("/vendor", vendorRoute);
 app.use("/admin", adminRoutes);
+app.use("/admin/products", adminProductRoutes);
 app.use("/user", userRoutes); // Use user routes
 app.use("/product", productRoutes);
 app.use("/category", categoryRoutes);
@@ -54,4 +56,5 @@ app.use("/payment", paymentRoutes);
 
 app.listen(PORT, () => {
     console.log(`server is running on port ${PORT}`);
+    // Server restarted
 })
