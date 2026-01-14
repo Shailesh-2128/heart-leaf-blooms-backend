@@ -11,6 +11,7 @@ const cartRoutes = require("./routes/cartRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const adminProductRoutes = require("./routes/adminProductRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
 const compression = require("compression");
@@ -53,6 +54,7 @@ app.use("/order", orderRoutes);
 app.use("/cart", cartRoutes);
 app.use("/wishlist", wishlistRoutes);
 app.use("/payment", paymentRoutes);
+app.use("/review", reviewRoutes);
 
 app.listen(PORT, () => {
     console.log(`server is running on port ${PORT}`);
