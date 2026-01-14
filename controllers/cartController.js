@@ -6,11 +6,22 @@ const addToCart = async (req, res) => {
         const { id } = req.params; // user_id
         const { product_id, quantity } = req.body;
 
+        // Determine if it is a Vendor Product or Admin Product
+        const vendorProduct = await prisma.product.findUnique({ where: { product_id } });
+        const adminProduct = !vendorProduct ? await prisma.products.findUnique({ where: { product_id } }) : null;
+
+        if (!vendorProduct && !adminProduct) {
+            return res.status(404).json({ error: "Product not found" });
+        }
+
         // Check if item already exists
         const existingItem = await prisma.cart.findFirst({
             where: {
                 user_id: id,
-                product_id: product_id
+                OR: [
+                    { product_id: vendorProduct ? product_id : undefined },
+                    { admin_product_id: adminProduct ? product_id : undefined }
+                ]
             }
         });
 
@@ -26,7 +37,8 @@ const addToCart = async (req, res) => {
         const newItem = await prisma.cart.create({
             data: {
                 user_id: id,
-                product_id,
+                product_id: vendorProduct ? product_id : null,
+                admin_product_id: adminProduct ? product_id : null,
                 quantity: parseInt(quantity)
             }
         });

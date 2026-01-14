@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { createAdmin, loginAdmin, logoutAdmin, displayAdmin, updateAdmin, getVendorPayoutStats, listVendors } = require('../controllers/adminCotrollers');
+const { getInventory } = require('../controllers/adminInventoryController');
 const verifyToken = require('../middlewares/authMiddleware');
 
 /**
@@ -197,39 +198,53 @@ router.get('/display/:id', verifyToken, displayAdmin);
  */
 router.put('/update/:id', verifyToken, updateAdmin);
 
-/**
- * @swagger
- * /admin/payout-stats:
- *   get:
- *     summary: Get vendor payout statistics
- *     tags: [Admin]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: List of vendor stats
- */
-router.get('/payout-stats', verifyToken, getVendorPayoutStats);
-// router.get('/payout-stats', getVendorPayoutStats); // Removed duplicate unprotected route
+// /**
+//  * @swagger
+//  * /admin/payout-stats:
+//  *   get:
+//  *     summary: Get vendor payout statistics
+//  *     tags: [Admin]
+//  *     security:
+//  *       - bearerAuth: []
+//  *     responses:
+//  *       200:
+//  *         description: List of vendor stats
+//  */
+// router.get('/payout-stats', verifyToken, getVendorPayoutStats);
+// // router.get('/payout-stats', getVendorPayoutStats); // Removed duplicate unprotected route
 
-/**
- * @swagger
- * /admin/vendor-list:
- *   get:
- *     summary: Get all vendors (Admin only)
- *     tags: [Admin]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: List of all vendors
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Vendor'
- */
-router.get('/vendor-list', verifyToken, listVendors);
+// /**
+//  * @swagger
+//  * /admin/vendor-list:
+//  *   get:
+//  *     summary: Get all vendors (Admin only)
+//  *     tags: [Admin]
+//  *     security:
+//  *       - bearerAuth: []
+//  *     responses:
+//  *       200:
+//  *         description: List of all vendors
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/Vendor'
+//  */
+// router.get('/vendor-list', verifyToken, listVendors);
+
+// /**
+//  * @swagger
+//  * /admin/inventory:
+//  *   get:
+//  *     summary: Get inventory of all products (Admin & Vendor)
+//  *     tags: [Admin]
+//  *     security:
+//  *       - bearerAuth: []
+//  *     responses:
+//  *       200:
+//  *         description: List of inventory items
+//  */
+// router.get('/inventory', verifyToken, getInventory);
 
 module.exports = router;

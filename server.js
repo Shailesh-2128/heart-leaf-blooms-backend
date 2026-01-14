@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 require("dotenv").config();
-const vendorRoute = require("./routes/vendorRoutes");
+// const vendorRoute = require("./routes/vendorRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/userRoutes"); // Import user routes
 const productRoutes = require("./routes/productRoutes");
@@ -43,7 +43,7 @@ app.get("/", (req, res) => {
     res.send("blooms server is running");
 });
 
-app.use("/vendor", vendorRoute);
+// app.use("/vendor", vendorRoute);
 app.use("/admin", adminRoutes);
 app.use("/admin/products", adminProductRoutes);
 app.use("/user", userRoutes); // Use user routes

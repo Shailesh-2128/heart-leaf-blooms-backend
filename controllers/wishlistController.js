@@ -6,10 +6,19 @@ const addToWishlist = async (req, res) => {
         const { id } = req.params; // user_id
         const { product_id } = req.body;
 
+        // Determine if it is a Vendor Product or Admin Product
+        const vendorProduct = await prisma.product.findUnique({ where: { product_id } });
+        const adminProduct = !vendorProduct ? await prisma.products.findUnique({ where: { product_id } }) : null;
+
+        if (!vendorProduct && !adminProduct) {
+            return res.status(404).json({ error: "Product not found" });
+        }
+
         const newItem = await prisma.wishlist.create({
             data: {
                 user_id: id,
-                product_id
+                product_id: vendorProduct ? product_id : null,
+                admin_product_id: adminProduct ? product_id : null
             }
         });
 

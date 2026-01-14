@@ -23,6 +23,8 @@ model Admin {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  products Products[]
 }
 
 model Vendor {
@@ -78,20 +80,26 @@ model Address {
 }
 
 model Cart {
-  cart_id    Int     @id @default(autoincrement())
+  cart_id    Int      @id @default(autoincrement())
   user_id    String
-  user       User    @relation(fields: [user_id], references: [user_id])
-  product_id String
-  product    Product @relation(fields: [product_id], references: [product_id])
-  quantity   Int
+  user       User     @relation(fields: [user_id], references: [user_id])
+  product_id String?
+  product    Product? @relation(fields: [product_id], references: [product_id])
+
+  admin_product_id String?
+  adminProduct     Products? @relation(fields: [admin_product_id], references: [product_id])
+  quantity         Int
 }
 
 model Wishlist {
-  wishlist_id Int     @id @default(autoincrement())
+  wishlist_id Int      @id @default(autoincrement())
   user_id     String
-  user        User    @relation(fields: [user_id], references: [user_id])
-  product_id  String
-  product     Product @relation(fields: [product_id], references: [product_id])
+  user        User     @relation(fields: [user_id], references: [user_id])
+  product_id  String?
+  product     Product? @relation(fields: [product_id], references: [product_id])
+
+  admin_product_id String?
+  adminProduct     Products? @relation(fields: [admin_product_id], references: [product_id])
 }
 
 model Product {
@@ -120,9 +128,12 @@ model Product {
 }
 
 model Image {
-  image_id   Int     @id @default(autoincrement())
-  product_id String
-  product    Product @relation(fields: [product_id], references: [product_id], onDelete: Cascade)
+  image_id   Int      @id @default(autoincrement())
+  product_id String?
+  product    Product? @relation(fields: [product_id], references: [product_id], onDelete: Cascade)
+
+  admin_product_id String?
+  adminProduct     Products? @relation(fields: [admin_product_id], references: [product_id], onDelete: Cascade)
 
   large_url  String
   medium_url String
@@ -135,17 +146,19 @@ model Category {
   category_description String
   category_icon        String
 
-  products Product[]
+  products      Product[]
+  adminProducts Products[]
 }
 
 model Order {
-  order_id       String  @id @default(uuid())
-  user_id        String
-  user           User    @relation(fields: [user_id], references: [user_id])
+  order_id        String           @id @default(uuid())
+  user_id         String
+  user            User             @relation(fields: [user_id], references: [user_id])
   // cart_id omitted as per standard practice (Cart items move to OrderItems)
-  total_amount   Decimal
-  payment_status String  @default("pending")
-  order_status   String  @default("pending")
+  total_amount    Decimal
+  payment_status  String           @default("pending")
+  order_status    String           @default("pending")
+  shippingAddress ShippingAddress?
 
   orderItems  OrderItem[]
   commissions Commission[]
@@ -156,13 +169,16 @@ model Order {
 }
 
 model OrderItem {
-  order_item_id String  @id @default(uuid())
+  order_item_id String   @id @default(uuid())
   order_id      String
-  order         Order   @relation(fields: [order_id], references: [order_id])
-  product_id    String
-  product       Product @relation(fields: [product_id], references: [product_id])
-  vendor_id     String
-  vendor        Vendor  @relation(fields: [vendor_id], references: [id])
+  order         Order    @relation(fields: [order_id], references: [order_id])
+  product_id    String?
+  product       Product? @relation(fields: [product_id], references: [product_id])
+  vendor_id     String?
+  vendor        Vendor?  @relation(fields: [vendor_id], references: [id])
+
+  admin_product_id String?
+  adminProduct     Products? @relation(fields: [admin_product_id], references: [product_id])
 
   price    Decimal
   quantity Int
@@ -196,4 +212,62 @@ model Payment {
   transaction_id String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model Products {
+  product_id String @id @default(uuid())
+
+  admin_id String
+  admin    Admin  @relation(fields: [admin_id], references: [id])
+
+  category_id Int
+  category    Category @relation(fields: [category_id], references: [category_id])
+
+  product_name        String
+  product_title       String
+  slug                String @unique
+  product_description String
+
+  product_price  Decimal  @db.Decimal(10, 2)
+  discount_price Decimal? @db.Decimal(10, 2)
+
+  stock         Int     @default(0)
+  product_guide String?
+
+  status      ProductStatus @default(ACTIVE)
+  is_featured Boolean       @default(false)
+  is_deleted  Boolean       @default(false)
+
+  average_rating Float @default(0)
+  total_reviews  Int   @default(0)
+
+  images        Image[]
+  cartItems     Cart[]
+  wishlistItems Wishlist[]
+  orderItems    OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category_id])
+  @@index([status])
+  @@index([is_featured])
+  @@index([is_deleted])
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  DRAFT
+  OUT_OF_STOCK
+}
+
+model ShippingAddress {
+  id       String @id @default(uuid())
+  order_id String @unique
+  order    Order  @relation(fields: [order_id], references: [order_id])
+  address  String
+  city     String
+  state    String
+  pincode  String
 }

@@ -173,13 +173,15 @@ exports.Prisma.CartScalarFieldEnum = {
   cart_id: 'cart_id',
   user_id: 'user_id',
   product_id: 'product_id',
+  admin_product_id: 'admin_product_id',
   quantity: 'quantity'
 };
 
 exports.Prisma.WishlistScalarFieldEnum = {
   wishlist_id: 'wishlist_id',
   user_id: 'user_id',
-  product_id: 'product_id'
+  product_id: 'product_id',
+  admin_product_id: 'admin_product_id'
 };
 
 exports.Prisma.ProductScalarFieldEnum = {
@@ -200,6 +202,7 @@ exports.Prisma.ProductScalarFieldEnum = {
 exports.Prisma.ImageScalarFieldEnum = {
   image_id: 'image_id',
   product_id: 'product_id',
+  admin_product_id: 'admin_product_id',
   large_url: 'large_url',
   medium_url: 'medium_url',
   small_url: 'small_url'
@@ -227,6 +230,7 @@ exports.Prisma.OrderItemScalarFieldEnum = {
   order_id: 'order_id',
   product_id: 'product_id',
   vendor_id: 'vendor_id',
+  admin_product_id: 'admin_product_id',
   price: 'price',
   quantity: 'quantity',
   status: 'status',
@@ -256,6 +260,36 @@ exports.Prisma.PaymentScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ProductsScalarFieldEnum = {
+  product_id: 'product_id',
+  admin_id: 'admin_id',
+  category_id: 'category_id',
+  product_name: 'product_name',
+  product_title: 'product_title',
+  slug: 'slug',
+  product_description: 'product_description',
+  product_price: 'product_price',
+  discount_price: 'discount_price',
+  stock: 'stock',
+  product_guide: 'product_guide',
+  status: 'status',
+  is_featured: 'is_featured',
+  is_deleted: 'is_deleted',
+  average_rating: 'average_rating',
+  total_reviews: 'total_reviews',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ShippingAddressScalarFieldEnum = {
+  id: 'id',
+  order_id: 'order_id',
+  address: 'address',
+  city: 'city',
+  state: 'state',
+  pincode: 'pincode'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -270,7 +304,12 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-
+exports.ProductStatus = exports.$Enums.ProductStatus = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  DRAFT: 'DRAFT',
+  OUT_OF_STOCK: 'OUT_OF_STOCK'
+};
 
 exports.Prisma.ModelName = {
   Admin: 'Admin',
@@ -285,7 +324,9 @@ exports.Prisma.ModelName = {
   Order: 'Order',
   OrderItem: 'OrderItem',
   Commission: 'Commission',
-  Payment: 'Payment'
+  Payment: 'Payment',
+  Products: 'Products',
+  ShippingAddress: 'ShippingAddress'
 };
 
 /**

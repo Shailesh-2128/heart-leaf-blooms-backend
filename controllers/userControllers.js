@@ -109,6 +109,11 @@ const getUser = async (req, res) => {
                             include: {
                                 images: true
                             }
+                        },
+                        adminProduct: {
+                            include: {
+                                images: true
+                            }
                         }
                     }
                 },

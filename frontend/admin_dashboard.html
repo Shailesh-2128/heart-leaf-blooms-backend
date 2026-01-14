@@ -160,35 +160,15 @@
 <body>
     <div class="sidebar">
         <h2>Admin Panel</h2>
-        <button onclick="showSection('vendors')" class="active" id="btn-vendors">Vendor Requests</button>
-        <button onclick="showSection('categories')" id="btn-categories">Categories</button>
-        <button onclick="showSection('products')" id="btn-products">Products</button>
+        <button onclick="showSection('categories')" id="btn-categories" class="active">Categories</button>
+        <button onclick="showSection('my-products')" id="btn-my-products">My Products</button>
         <button onclick="showSection('orders')" id="btn-orders">Orders</button>
-        <button onclick="showSection('payouts')" id="btn-payouts">Payouts</button>
+        <button onclick="showSection('inventory')" id="btn-inventory">Inventory</button>
         <button onclick="logout()" style="margin-top: auto;">Logout</button>
     </div>
 
     <div class="main-content">
-        <div id="section-vendors">
-            <div class="header">
-                <h1>Vendor Requests</h1>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Vendor ID</th>
-                        <th>Name</th>
-                        <th>Shop</th>
-                        <th>Address</th>
-                        <th>Email</th>
-                        <th>Status</th>
-                        <th>Commission Rate</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="vendorList"></tbody>
-            </table>
-        </div>
+
 
         <div id="section-categories" style="display:none">
             <div class="header">
@@ -228,219 +208,185 @@
             </table>
         </div>
 
-        <div id="section-payouts" style="display:none">
-            <div class="header">
-                <h1>Vendor Payouts</h1>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Vendor</th>
-                        <th>Bank Details</th>
-                        <th>Total Requests Sales</th>
-                        <th>Commission Deducted</th>
-                        <th>Paid Out</th>
-                        <th>Balance</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="payoutList"></tbody>
-            </table>
-        </div>
 
-        <div id="section-products" style="display:none">
+
+
+
+        <div id="section-my-products" style="display:none">
             <div class="header">
-                <h1>All Products</h1>
-                <button onclick="openProductModal()"
+                <h1>My Products (Admin)</h1>
+                <button onclick="openAdminProductModal()"
                     style="padding: 10px 20px; background: #2d6a4f; color: white; border: none; border-radius: 8px; cursor: pointer;">+
                     Add Product</button>
             </div>
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Product</th>
-                        <th>Vendor</th>
                         <th>Price</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Featured</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody id="productList"></tbody>
+                <tbody id="myProductList"></tbody>
             </table>
         </div>
 
-    </div>
-
-    <!-- Product Modal -->
-    <div id="productModal"
-        style="display:none; position: fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:200;">
-        <div class="modal-body" style="width: 500px; max-height: 90vh; overflow-y: auto;">
-            <h3>Add Product (Admin)</h3>
-            <form id="productForm" onsubmit="createProduct(event)">
-                <label>Vendor ID (Required)</label>
-                <input type="text" name="vendor_id" placeholder="Paste Vendor ID here" required>
-
-                <label>Category</label>
-                <select name="category_id" id="productCategory" required
-                    style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ddd;"></select>
-
-                <label>Product Name</label>
-                <input type="text" name="product_name" required>
-
-                <label>Title</label>
-                <input type="text" name="product_title" required>
-
-                <label>Description</label>
-                <textarea name="product_description" required></textarea>
-
-                <label>Guide/Instructions</label>
-                <textarea name="product_guide"></textarea>
-
-                <label>Price</label>
-                <input type="number" name="product_price" required>
-
-                <label>Discount Price</label>
-                <input type="number" name="discount_price">
-
-                <label>Images</label>
-                <input type="file" id="productImages" multiple accept="image/*">
-
-                <button type="submit" id="btnCreateProduct"
-                    style="width: 100%; padding: 10px; background: #2d6a4f; color: white; border: none; border-radius: 8px; cursor: pointer;">Create
-                    Product</button>
-                <button type="button" onclick="closeProductModal()"
-                    style="width: 100%; padding: 10px; background: #eee; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px;">Cancel</button>
-            </form>
+        <div id="section-inventory" style="display:none">
+            <div class="header">
+                <h1>Inventory</h1>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Owner</th>
+                        <th>Price</th>
+                        <th>Stock Status</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryList"></tbody>
+            </table>
         </div>
-    </div>
 
-    <!-- Payout Modal -->
-    <div id="payoutModal"
-        style="display:none; position: fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
-        <div class="modal-body">
-            <h3>Process Payout</h3>
-            <p id="payoutVendorName"></p>
-            <input type="hidden" id="payoutVendorId">
-            <label>Amount to Pay</label>
-            <input type="number" id="payoutAmount" placeholder="Amount">
-            <label>Payment Method</label>
-            <select id="payoutMethod"
-                style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px;">
-                <option value="bank_transfer">Bank Transfer</option>
-                <option value="upi">UPI</option>
-                <option value="check">Check</option>
-                <option value="cash">Cash</option>
-            </select>
-            <button onclick="submitPayout()"
-                style="padding: 10px; width: 100%; background: #2d6a4f; color: white; border: none; border-radius: 8px; cursor: pointer;">Pay</button>
-            <button onclick="closePayoutModal()"
-                style="padding: 10px; width: 100%; background: #eee; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px;">Cancel</button>
+        <!-- Product Modal -->
+
+
+        <!-- Admin Product Modal -->
+        <div id="adminProductModal"
+            style="display:none; position: fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:200;">
+            <div class="modal-body" style="width: 500px; max-height: 90vh; overflow-y: auto;">
+                <h3>Add Product (Admin)</h3>
+                <form id="adminProductForm" onsubmit="submitAdminProduct(event)"
+                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <input type="hidden" name="id" id="adminProductId"> <!-- For updates -->
+
+                    <div style="grid-column: 1 / -1;">
+                        <label>Category</label>
+                        <select name="category_id" id="adminProductCategory" required class="input-field"></select>
+                    </div>
+
+                    <div>
+                        <label>Product Name</label>
+                        <input type="text" name="product_name" required>
+                    </div>
+
+                    <div>
+                        <label>Title</label>
+                        <input type="text" name="product_title" required>
+                    </div>
+
+                    <div style="grid-column: 1 / -1;">
+                        <label>Description</label>
+                        <textarea name="product_description" required></textarea>
+                    </div>
+
+                    <div>
+                        <label>Price</label>
+                        <input type="number" name="product_price" required>
+                    </div>
+
+                    <div>
+                        <label>Discount Price</label>
+                        <input type="number" name="discount_price">
+                    </div>
+
+                    <div>
+                        <label>Stock</label>
+                        <input type="number" name="stock" value="0">
+                    </div>
+
+                    <div>
+                        <label>Product Guide</label>
+                        <input type="text" name="product_guide" placeholder="Optional URL or text">
+                    </div>
+
+                    <div>
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="ACTIVE">Active</option>
+                            <option value="INACTIVE">Inactive</option>
+                            <option value="DRAFT">Draft</option>
+                            <option value="OUT_OF_STOCK">Out of Stock</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Featured</label>
+                        <select name="is_featured">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
+                    </div>
+
+                    <div style="grid-column: 1 / -1;">
+                        <label>Images</label>
+                        <input type="file" id="adminProductImages" multiple accept="image/*">
+                    </div>
+
+                    <div style="grid-column: 1 / -1; display:flex; gap:10px;">
+                        <button type="submit" id="btnSaveAdminProduct"
+                            style="width: 100%; padding: 10px; background: #2d6a4f; color: white; border: none; border-radius: 8px; cursor: pointer;">Save
+                            Product</button>
+                        <button type="button" onclick="closeAdminProductModal()"
+                            style="width: 100%; padding: 10px; background: #eee; border: none; border-radius: 8px; cursor: pointer;">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
 
-    <div id="catModal">
-        <div class="modal-body">
-            <h3>Add Category</h3>
-            <input type="text" id="catName" placeholder="Category Name">
-            <textarea id="catDesc" placeholder="Description"></textarea>
-            <input type="text" id="catIcon" placeholder="Icon URL">
-            <button onclick="createCategory()"
-                style="padding: 10px; width: 100%; background: #2d6a4f; color: white; border: none; border-radius: 8px; cursor: pointer;">Save</button>
-            <button onclick="closeCatModal()"
-                style="padding: 10px; width: 100%; background: #eee; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px;">Cancel</button>
+
+
+        <div id="catModal">
+            <div class="modal-body">
+                <h3>Add Category</h3>
+                <input type="text" id="catName" placeholder="Category Name">
+                <textarea id="catDesc" placeholder="Description"></textarea>
+                <input type="text" id="catIcon" placeholder="Icon URL">
+                <button onclick="createCategory()"
+                    style="padding: 10px; width: 100%; background: #2d6a4f; color: white; border: none; border-radius: 8px; cursor: pointer;">Save</button>
+                <button onclick="closeCatModal()"
+                    style="padding: 10px; width: 100%; background: #eee; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px;">Cancel</button>
+            </div>
         </div>
-    </div>
 
-    <script>
-        // Use existing vendor logic, extend with categories
+        <script>
+            // Use existing vendor logic, extend with categories
 
-        const API_BASE_URL = window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:7071' : 'http://localhost:7071';
+            const API_BASE_URL = window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:7071' : 'http://localhost:7071';
 
-        function showSection(id) {
-            document.getElementById('section-vendors').style.display = id === 'vendors' ? 'block' : 'none';
-            document.getElementById('section-categories').style.display = id === 'categories' ? 'block' : 'none';
-            document.getElementById('section-orders').style.display = id === 'orders' ? 'block' : 'none';
-            document.getElementById('section-payouts').style.display = id === 'payouts' ? 'block' : 'none';
-            document.getElementById('section-products').style.display = id === 'products' ? 'block' : 'none';
+            function showSection(id) {
+                document.getElementById('section-categories').style.display = id === 'categories' ? 'block' : 'none';
+                document.getElementById('section-orders').style.display = id === 'orders' ? 'block' : 'none';
+                document.getElementById('section-my-products').style.display = id === 'my-products' ? 'block' : 'none';
+                document.getElementById('section-inventory').style.display = id === 'inventory' ? 'block' : 'none';
 
-            document.getElementById('btn-vendors').classList.toggle('active', id === 'vendors');
-            document.getElementById('btn-categories').classList.toggle('active', id === 'categories');
-            document.getElementById('btn-orders').classList.toggle('active', id === 'orders');
-            document.getElementById('btn-payouts').classList.toggle('active', id === 'payouts');
-            document.getElementById('btn-products').classList.toggle('active', id === 'products');
+                document.getElementById('btn-categories').classList.toggle('active', id === 'categories');
+                document.getElementById('btn-orders').classList.toggle('active', id === 'orders');
+                document.getElementById('btn-my-products').classList.toggle('active', id === 'my-products');
+                document.getElementById('btn-inventory').classList.toggle('active', id === 'inventory');
 
-            if (id === 'vendors') loadVendors();
-            if (id === 'categories') loadCategories();
-            if (id === 'orders') loadOrders();
-            if (id === 'payouts') loadPayouts();
-            if (id === 'products') loadProducts();
-        }
-
-        async function toggleVendorStatus(id) {
-            try {
-                // Determine rate if input exists
-                const rateInput = document.getElementById(`rate-${id}`);
-                const commission_rate = rateInput ? parseFloat(rateInput.value) : 0.10;
-
-                const res = await fetch(`${API_BASE_URL}/vendor/approve/${id}`, {
-                    method: 'PUT',
-                    credentials: 'include',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        status: 'approved',
-                        isVerified: true,
-                        commission_rate: commission_rate
-                    })
-                });
-
-                if (res.ok) {
-                    loadVendors();
-                } else {
-                    alert('Failed to update vendor');
-                }
-            } catch (e) { console.error(e); }
-        }
-
-        async function loadVendors() {
-            try {
-                const res = await fetch(`${API_BASE_URL}/admin/vendor-list`, { credentials: 'include' });
-                const vendors = await res.json();
-                const tbody = document.getElementById('vendorList');
-                tbody.innerHTML = '';
-
-                vendors.forEach(v => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${v.id}</td>
-                        <td>${v.name}</td>
-                        <td>${v.shopName}</td>
-                        <td>${v.shopAddress}</td>
-                        <td>${v.email}</td>
-                        <td><span class="status-badge ${v.status}">${v.status}</span></td>
-                        <td>
-                            ${v.status === 'pending' ? `<input type="number" id="rate-${v.id}" step="0.01" value="0.10" style="width: 80px; margin-bottom: 0;">` : (v.commission_rate || '0.10')}
-                        </td>
-                        <td>
-                             <button onclick="toggleVendorStatus('${v.id}')">${v.status === 'pending' ? 'Approve' : 'Reject'}</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } catch (e) {
-                console.error(e);
+                if (id === 'categories') loadCategories();
+                if (id === 'orders') loadOrders();
+                if (id === 'my-products') loadMyProducts(); // Admin products
+                if (id === 'inventory') loadInventory();
             }
-        }
 
-        async function loadCategories() {
-            try {
-                const res = await fetch(`${API_BASE_URL}/category`, { credentials: 'include' });
-                const cats = await res.json();
-                const tbody = document.getElementById('categoryList');
-                tbody.innerHTML = '';
 
-                cats.forEach(c => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
+
+            async function loadCategories() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/category`, { credentials: 'include' });
+                    const cats = await res.json();
+                    const tbody = document.getElementById('categoryList');
+                    tbody.innerHTML = '';
+
+                    cats.forEach(c => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
                         <td>${c.category_id}</td>
                         <td>${c.category_name}</td>
                         <td>${c.category_description}</td>
@@ -448,21 +394,21 @@
                              <button onclick="deleteCategory(${c.category_id})">Delete</button>
                         </td>
                     `;
-                    tbody.appendChild(tr);
-                });
-            } catch (e) { console.error(e); }
-        }
+                        tbody.appendChild(tr);
+                    });
+                } catch (e) { console.error(e); }
+            }
 
-        async function loadOrders() {
-            try {
-                const res = await fetch(`${API_BASE_URL}/order/admin`, { credentials: 'include' });
-                const orders = await res.json();
-                const tbody = document.getElementById('orderList');
-                tbody.innerHTML = '';
+            async function loadOrders() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/order/admin`, { credentials: 'include' });
+                    const orders = await res.json();
+                    const tbody = document.getElementById('orderList');
+                    tbody.innerHTML = '';
 
-                orders.forEach(o => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
+                    orders.forEach(o => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
                         <td>${o.order_id.substring(0, 8)}...</td>
                         <td>${o.user ? o.user.username : 'Unknown'}</td>
                         <td>₹${o.total_amount}</td>
@@ -473,266 +419,293 @@
                              <button onclick="updateOrderStatus('${o.order_id}', 'completed')">Complete</button>
                         </td>
                     `;
-                    tbody.appendChild(tr);
-                });
-            } catch (e) { console.error(e); }
-        }
+                        tbody.appendChild(tr);
+                    });
+                } catch (e) { console.error(e); }
+            }
 
-        async function updateOrderStatus(id, status) {
-            try {
-                await fetch(`${API_BASE_URL}/order/admin/${id}`, {
-                    method: 'PUT',
+            async function updateOrderStatus(id, status) {
+                try {
+                    await fetch(`${API_BASE_URL}/order/admin/${id}`, {
+                        method: 'PUT',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status })
+                    });
+                    loadOrders();
+                } catch (e) { console.error(e); }
+            }
+
+            function openCatModal() { document.getElementById('catModal').style.display = 'flex'; }
+            function closeCatModal() { document.getElementById('catModal').style.display = 'none'; }
+
+            async function createCategory() {
+                const name = document.getElementById('catName').value;
+                const desc = document.getElementById('catDesc').value;
+                const icon = document.getElementById('catIcon').value;
+
+                await fetch(`${API_BASE_URL}/category`, {
+                    method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status })
+                    body: JSON.stringify({ category_name: name, category_description: desc, category_icon: icon })
                 });
-                loadOrders();
-            } catch (e) { console.error(e); }
-        }
-
-        function openCatModal() { document.getElementById('catModal').style.display = 'flex'; }
-        function closeCatModal() { document.getElementById('catModal').style.display = 'none'; }
-
-        async function createCategory() {
-            const name = document.getElementById('catName').value;
-            const desc = document.getElementById('catDesc').value;
-            const icon = document.getElementById('catIcon').value;
-
-            await fetch(`${API_BASE_URL}/category`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ category_name: name, category_description: desc, category_icon: icon })
-            });
-            closeCatModal();
-            loadCategories();
-        }
-
-        async function deleteCategory(id) {
-            if (confirm('Delete?')) {
-                await fetch(`${API_BASE_URL}/category/${id}`, { method: 'DELETE', credentials: 'include' });
+                closeCatModal();
                 loadCategories();
             }
-        }
 
-        async function logout() {
-            try {
-                await fetch(`${API_BASE_URL}/admin/logout`, { method: 'POST' });
-                window.location.href = 'admin_login.html';
-            } catch (e) {
-                window.location.href = 'admin_login.html';
-            }
-        }
-
-        async function loadPayouts() {
-            try {
-                const res = await fetch(`${API_BASE_URL}/admin/payout-stats`, { credentials: 'include' });
-                const stats = await res.json();
-                const tbody = document.getElementById('payoutList');
-                tbody.innerHTML = '';
-
-                stats.forEach(s => {
-                    const v = s.vendor;
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${v.name}<br><small>${v.shopName}</small></td>
-                        <td>${v.bankName || '-'}<br>${v.accountNumber || '-'} (${v.IFSC || '-'})</td>
-                        <td>₹${s.totalSales.toFixed(2)}</td>
-                        <td>₹${s.totalCommission.toFixed(2)}</td>
-                        <td>₹${s.totalPaid.toFixed(2)}</td>
-                        <td style="font-weight:bold; color: ${s.balance > 0 ? 'red' : 'green'}">₹${s.balance.toFixed(2)}</td>
-                        <td>
-                            <button onclick="openPayoutModal('${v.id}', '${v.name}', ${s.balance})" ${s.balance <= 0 ? 'disabled' : ''}>Pay</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } catch (e) { console.error(e); }
-        }
-
-        function openPayoutModal(vId, vName, balance) {
-            document.getElementById('payoutVendorId').value = vId;
-            document.getElementById('payoutVendorName').innerText = `Paying to: ${vName}`;
-            document.getElementById('payoutAmount').value = balance;
-            document.getElementById('payoutModal').style.display = 'flex';
-        }
-
-        function closePayoutModal() {
-            document.getElementById('payoutModal').style.display = 'none';
-        }
-
-        async function submitPayout() {
-            const vId = document.getElementById('payoutVendorId').value;
-            const amount = document.getElementById('payoutAmount').value;
-            const method = document.getElementById('payoutMethod').value;
-
-            if (!amount || amount <= 0) {
-                alert("Invalid amount");
-                return;
-            }
-
-            try {
-                const res = await fetch(`${API_BASE_URL}/payment/vendor-payout`, {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ vendor_id: vId, amount: amount, payment_method: method })
-                });
-
-                if (res.ok) {
-                    alert('Payout Recorded!');
-                    closePayoutModal();
-                    loadPayouts();
-                } else {
-                    alert('Error recording payout');
+            async function deleteCategory(id) {
+                if (confirm('Delete?')) {
+                    await fetch(`${API_BASE_URL}/category/${id}`, { method: 'DELETE', credentials: 'include' });
+                    loadCategories();
                 }
-            } catch (e) { console.error(e); }
-        }
+            }
 
-        // --- Product Management (Admin Side) ---
+            async function logout() {
+                try {
+                    await fetch(`${API_BASE_URL}/admin/logout`, { method: 'POST' });
+                    window.location.href = 'admin_login.html';
+                } catch (e) {
+                    window.location.href = 'admin_login.html';
+                }
+            }
 
-        async function loadProducts() {
-            try {
-                const res = await fetch(`${API_BASE_URL}/product/`, { credentials: 'include' });
-                const products = await res.json();
-                const container = document.getElementById('productList');
-                container.innerHTML = '';
 
-                products.forEach(p => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${p.product_id ? p.product_id.substring(0, 8) : 'N/A'}</td>
+
+            // --- Product Management (Admin Side) ---
+
+
+
+            // --- Admin My Products Logic ---
+
+            async function loadMyProducts() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/admin/products`, { credentials: 'include' });
+                    const products = await res.json();
+                    const container = document.getElementById('myProductList');
+                    container.innerHTML = '';
+
+                    products.forEach(p => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
                         <td>
-                            <img src="${p.images && p.images.length > 0 ? p.images[0].small_url : ''}" style="height:40px; width:40px; object-fit:cover; border-radius:4px;">
-                            ${p.product_name}
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <img src="${p.images && p.images.length > 0 ? p.images[0].small_url : ''}" 
+                                     style="width:40px; height:40px; object-fit:cover; border-radius:4px; background:#eee;">
+                                <div>
+                                    <div style="font-weight:bold;">${p.product_name}</div>
+                                    <small style="color:gray;">${p.product_title}</small>
+                                </div>
+                            </div>
                         </td>
-                        <td>${p.vendor ? p.vendor.name : 'Unknown'}</td>
-                        <td>₹${p.product_price}</td>
                         <td>
-                             <button onclick="deleteProduct('${p.product_id}')" style="background: #e63946;">Delete</button>
+                            ₹${p.product_price}
+                            ${p.discount_price ? `<br><small style="text-decoration:line-through; color:gray">₹${p.discount_price}</small>` : ''}
+                        </td>
+                        <td>${p.stock}</td>
+                        <td><span class="status-badge ${p.status === 'ACTIVE' ? 'approved' : 'pending'}">${p.status}</span></td>
+                        <td>${p.is_featured ? '⭐' : '-'}</td>
+                        <td>
+                             <button onclick="editAdminProduct('${p.product_id}')">Edit</button>
+                             <button onclick="deleteAdminProduct('${p.product_id}')" style="background: #e63946;">Delete</button>
                         </td>
                     `;
-                    container.appendChild(tr);
-                });
-            } catch (error) {
-                console.error("Load Products Error:", error);
+                        container.appendChild(tr);
+                    });
+                } catch (e) { console.error(e); }
             }
-        }
 
-        function openProductModal() {
-            document.getElementById('productModal').style.display = 'flex';
-            loadCategoriesForModal();
-        }
+            function openAdminProductModal(product = null) {
+                document.getElementById('adminProductModal').style.display = 'flex';
+                loadCategoriesForElement('adminProductCategory'); // Helper
 
-        function closeProductModal() {
-            document.getElementById('productModal').style.display = 'none';
-        }
+                const form = document.getElementById('adminProductForm');
+                form.reset();
+                document.getElementById('adminProductId').value = '';
 
-        async function loadCategoriesForModal() {
-            try {
-                const res = await fetch(`${API_BASE_URL}/category`);
-                const cats = await res.json();
-                const select = document.getElementById('productCategory');
-                select.innerHTML = '<option value="">Select Category</option>';
-                cats.forEach(c => {
-                    select.innerHTML += `<option value="${c.category_id}">${c.category_name}</option>`;
-                });
-            } catch (e) { console.error(e); }
-        }
+                if (product) {
+                    document.getElementById('adminProductId').value = product.product_id;
+                    form.product_name.value = product.product_name;
+                    form.product_title.value = product.product_title;
+                    form.product_description.value = product.product_description;
+                    form.product_price.value = product.product_price;
+                    if (product.discount_price) form.discount_price.value = product.discount_price;
+                    if (product.stock) form.stock.value = product.stock;
+                    if (product.product_guide) form.product_guide.value = product.product_guide;
+                    form.is_featured.value = product.is_featured ? 'true' : 'false';
+                    form.status.value = product.status || 'ACTIVE';
+                    // Wait for categories to load then set value
+                    setTimeout(() => {
+                        if (product.category_id) form.category_id.value = product.category_id;
+                    }, 500);
+                }
+            }
 
-        async function createProduct(e) {
-            e.preventDefault();
-            const submitBtn = document.getElementById('btnCreateProduct');
-            submitBtn.innerText = 'Processing...';
-            submitBtn.disabled = true;
+            function closeAdminProductModal() {
+                document.getElementById('adminProductModal').style.display = 'none';
+            }
 
-            const form = document.getElementById('productForm');
-            const fileInput = document.getElementById('productImages');
-            const files = fileInput.files;
+            async function editAdminProduct(id) {
+                // Fetch single product details to populate form
+                try {
+                    const res = await fetch(`${API_BASE_URL}/admin/products/${id}`, { credentials: 'include' });
+                    const product = await res.json();
+                    openAdminProductModal(product);
+                } catch (e) { console.error(e); }
+            }
 
-            let finalImageUrls = [];
+            async function deleteAdminProduct(id) {
+                if (confirm('Are you sure needed to delete this product?')) {
+                    await fetch(`${API_BASE_URL}/admin/products/${id}`, { method: 'DELETE', credentials: 'include' });
+                    loadMyProducts();
+                }
+            }
 
-            try {
-                // 1. Upload Images
-                if (files.length > 0) {
-                    submitBtn.innerText = 'Uploading Images...';
-                    for (let i = 0; i < files.length; i++) {
-                        const file = files[i];
-                        const uploadData = new FormData();
-                        uploadData.append('image', file);
+            async function submitAdminProduct(e) {
+                e.preventDefault();
+                const btn = document.getElementById('btnSaveAdminProduct');
+                btn.disabled = true;
+                btn.innerText = 'Saving...';
 
-                        const res = await fetch(`${API_BASE_URL}/product/upload-image`, {
-                            method: 'POST',
-                            credentials: 'include',
-                            body: uploadData
-                        });
+                const form = document.getElementById('adminProductForm');
+                const id = document.getElementById('adminProductId').value;
+                const fileInput = document.getElementById('adminProductImages');
+                const files = fileInput.files;
 
-                        if (!res.ok) throw new Error('Image upload failed');
-                        const response = await res.json();
-                        const { large, medium, small } = response.data;
+                let imageUrls = [];
 
-                        console.log("Uploaded Image:", response.data);
-
-                        finalImageUrls.push(large); // Large
-                        finalImageUrls.push(medium); // Medium
-                        finalImageUrls.push(small); // Small
+                try {
+                    // 1. Upload new images if any
+                    if (files.length > 0) {
+                        // Reuse existing image upload endpoint (Vendor/Product one - assuming it works for authenticated users)
+                        // Or create a new one. Let's try the existing one first.
+                        for (let i = 0; i < files.length; i++) {
+                            const file = files[i];
+                            const uploadData = new FormData();
+                            uploadData.append('image', file);
+                            const res = await fetch(`${API_BASE_URL}/product/upload-image`, {
+                                method: 'POST', credentials: 'include', body: uploadData
+                            });
+                            const data = await res.json();
+                            if (res.ok) {
+                                imageUrls.push(data.data.large);
+                                imageUrls.push(data.data.medium);
+                                imageUrls.push(data.data.small);
+                            }
+                        }
                     }
+
+                    // 2. Prepare Data
+                    const payload = {
+                        category_id: form.category_id.value,
+                        product_name: form.product_name.value,
+                        product_title: form.product_title.value,
+                        product_description: form.product_description.value,
+                        product_price: form.product_price.value,
+                        discount_price: form.discount_price.value,
+                        stock: form.stock.value,
+                        product_guide: form.product_guide.value,
+                        is_featured: form.is_featured.value === 'true',
+                        status: form.status.value,
+                        product_images: imageUrls.length > 0 ? imageUrls : undefined
+                    };
+
+                    let url = `${API_BASE_URL}/admin/products`;
+                    let method = 'POST';
+                    if (id) {
+                        url += `/${id}`;
+                        method = 'PUT';
+                    }
+
+                    const res = await fetch(url, {
+                        method: method,
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (res.ok) {
+                        alert('Saved Successfully');
+                        closeAdminProductModal();
+                        loadMyProducts();
+                    } else {
+                        const err = await res.json();
+                        alert('Error: ' + (err.error || err.message));
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    alert('Failed');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerText = 'Save Product';
                 }
-
-                // 2. Prepare Payload
-                const formData = new FormData(form);
-                const payload = {
-                    vendor_id: formData.get('vendor_id'), // Admin explicitly provides this
-                    product_name: formData.get('product_name'),
-                    product_title: formData.get('product_title'),
-                    product_description: formData.get('product_description'),
-                    product_guide: formData.get('product_guide'),
-                    product_price: parseFloat(formData.get('product_price')),
-                    discount_price: formData.get('discount_price') ? parseFloat(formData.get('discount_price')) : null,
-                    category_id: parseInt(formData.get('category_id')),
-                    product_images: finalImageUrls
-                };
-
-                // Wait 1s
-                await new Promise(r => setTimeout(r, 1000));
-
-                submitBtn.innerText = 'Saving...';
-                const res = await fetch(`${API_BASE_URL}/product`, {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (res.ok) {
-                    alert('Product Created!');
-                    closeProductModal();
-                    loadProducts();
-                    form.reset();
-                } else {
-                    const err = await res.json();
-                    alert('Error: ' + (err.error || err.message));
-                }
-
-            } catch (err) {
-                console.error(err);
-                alert('Failed: ' + err.message);
-            } finally {
-                submitBtn.innerText = 'Create Product';
-                submitBtn.disabled = false;
             }
-        }
 
-        async function deleteProduct(id) {
-            if (confirm('Delete product?')) {
-                await fetch(`${API_BASE_URL}/product/${id}`, { method: 'DELETE', credentials: 'include' });
-                loadProducts();
+            async function loadInventory() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/admin/inventory`, { credentials: 'include' });
+                    const inventory = await res.json();
+                    const tbody = document.getElementById('inventoryList');
+                    tbody.innerHTML = '';
+
+                    inventory.forEach(item => {
+                        const tr = document.createElement('tr');
+
+                        // Stock Status Badge Logic
+                        let stockBadgeClass = 'pending'; // Default yellow
+                        if (item.inventory_status === 'In Stock' || item.inventory_status === 'Available') {
+                            stockBadgeClass = 'approved'; // Green
+                        } else {
+                            stockBadgeClass = 'pending'; // Use pending style for Out of Stock / Unavailable (or keep as is)
+                            // Or custom class if defined
+                        }
+                        // We can just use the generic 'status-badge' classes defined in CSS: pending (yellow), approved (green)
+                        let badgeColor = item.inventory_status.includes('In') || item.inventory_status === 'Available' ? 'approved' : 'pending';
+
+                        tr.innerHTML = `
+                        <td>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <img src="${item.image || ''}" 
+                                     style="width:40px; height:40px; object-fit:cover; border-radius:4px; background:#eee;">
+                                <div>
+                                    <div style="font-weight:bold;">${item.name}</div>
+                                    <small style="color:gray;">${item.title}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>${item.owner_name}</div>
+                            <small style="color:gray;">${item.owner_type}</small>
+                        </td>
+                        <td>₹${item.price}</td>
+                        <td>
+                            ${item.stock !== null ? `<strong>${item.stock}</strong> units` : '-'}
+                            <br>
+                            <span class="status-badge ${badgeColor}">${item.inventory_status}</span>
+                        </td>
+                        <td>${item.status}</td>
+                    `;
+                        tbody.appendChild(tr);
+                    });
+                } catch (e) { console.error(e); }
             }
-        }
 
-        // Init
-        loadVendors();
-    </script>
+            async function loadCategoriesForElement(elementId) {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/category`);
+                    const cats = await res.json();
+                    const select = document.getElementById(elementId);
+                    select.innerHTML = '<option value="">Select Category</option>';
+                    cats.forEach(c => {
+                        select.innerHTML += `<option value="${c.category_id}">${c.category_name}</option>`;
+                    });
+                } catch (e) { console.error(e); }
+            }
+
+            // Init
+            showSection('categories');
+        </script>
 </body>
 
 </html>

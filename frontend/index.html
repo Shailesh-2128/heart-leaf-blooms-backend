@@ -202,16 +202,56 @@
         .add-cart-btn:hover {
             transform: scale(1.1);
         }
+
+        /* Loader */
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            display: none;
+            backdrop-filter: blur(5px);
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
+
 <body>
+
+    <!-- Global Loader -->
+    <div class="loader-overlay" id="globalLoader">
+        <div class="loader"></div>
+    </div>
 
     <nav class="navbar">
         <a href="index.html" class="logo">Heart Leaf Blooms</a>
         <div class="nav-links" id="navLinks">
             <a href="index.html">Home</a>
-            <a href="vendors.html">Vendors</a>
             <a href="#">Shop</a>
             <a href="cart.html">Cart</a>
             <a href="wishlist.html">Wishlist</a>
@@ -264,6 +304,7 @@
         }
 
         async function init() {
+            showLoader();
             // Load Categories
             try {
                 const catRes = await fetch(`${API_BASE_URL}/category`);
@@ -280,27 +321,69 @@
             } catch (e) { console.error(e); }
 
             // Load Products
-            loadProducts();
+            await loadProducts();
+            hideLoader();
         }
+
+        function showLoader() { document.getElementById('globalLoader').style.display = 'flex'; }
+        function hideLoader() { document.getElementById('globalLoader').style.display = 'none'; }
 
         async function loadProducts(categoryId = null) {
             try {
-                let url = `${API_BASE_URL}/product`;
-                if (categoryId) url = `${API_BASE_URL}/product/category/${categoryId}`;
-
-                const res = await fetch(url);
-                const products = await res.json();
                 const container = document.getElementById('productList');
+                // container.innerHTML = '<p style="text-align:center; width:100%;">Loading products...</p>'; // Removed for global loader
+
+                // Arrays to hold fetched data
+                let vendorProducts = [];
+                let adminProducts = [];
+
+                // 1. Fetch Vendor Products
+                try {
+                    let url = `${API_BASE_URL}/product`;
+                    if (categoryId) url = `${API_BASE_URL}/product/category/${categoryId}`;
+                    const res = await fetch(url);
+                    if (res.ok) vendorProducts = await res.json();
+                } catch (e) {
+                    console.error("Error fetching vendor products:", e);
+                }
+
+                // 2. Fetch Admin Products (New Route)
+                // Admin products also support filtering by category if we implemented it, but for now Public endpoint gets all.
+                // We'll filter client-side if a category is selected and the API doesn't support it yet on /public.
+                // Ideally, /admin/products/public should support ?category_id=... 
+                // Let's assume we just fetch all and filter client side for Admin products if needed, 
+                // or just display them all if category not specified.
+                try {
+                    let url = `${API_BASE_URL}/admin/products/public`;
+                    const res = await fetch(url);
+                    if (res.ok) {
+                        adminProducts = await res.json();
+                        // Client-side category filter for admin products (since our simple controller didn't add filters yet)
+                        if (categoryId) {
+                            adminProducts = adminProducts.filter(p => p.category_id == categoryId);
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error fetching admin products:", e);
+                }
+
+                // 3. Merge
+                const allProducts = [...adminProducts, ...vendorProducts];
+
+                // Optional: Shuffle or Sort? Let's sort by createdAt desc
+                // allProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
                 container.innerHTML = '';
 
-                products.forEach(p => {
+                if (allProducts.length === 0) {
+                    container.innerHTML = '<p style="text-align:center; width:100%;">No products found.</p>';
+                    return;
+                }
+
+                allProducts.forEach(p => {
                     let img = 'https://via.placeholder.com/400x500';
                     if (p.images && p.images.length) {
-                        // Priority: large > medium > small > img_url property (if simple object)
-                        // Adjust based on your actual data structure from seeder/API
-                        // Seeder: images: { create: [{ large_url, ... }] }
-                        // API Response: images: [{ large_url: '...' }]
-                        img = p.images[0].large_url || p.images[0].medium_url || p.images[0].img_url || img;
+                        img = p.images[0].large_url || p.images[0].medium_url || p.images[0].small_url || img;
                     }
 
                     const el = document.createElement('div');
@@ -320,8 +403,10 @@
             } catch (e) { console.error(e); }
         }
 
-        function filterByCategory(id) {
-            loadProducts(id);
+        async function filterByCategory(id) {
+            showLoader();
+            await loadProducts(id);
+            hideLoader();
         }
 
         async function addToCart(productId) {

@@ -94,15 +94,12 @@ router.post('/create-order', verifyToken, paymentController.createRazorpayOrder)
  *             required:
  *               - razorpay_order_id
  *               - razorpay_payment_id
- *               - razorpay_order_id
- *               - razorpay_payment_id
  *               - razorpay_signature
  *               - user_id
  *             properties:
  *               razorpay_order_id:
  *                 type: string
  *               razorpay_payment_id:
-
  *                 type: string
  *               razorpay_signature:
  *                 type: string

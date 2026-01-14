@@ -20,7 +20,8 @@ const createRazorpayOrder = async (req, res) => {
         const cartItems = await prisma.cart.findMany({
             where: { user_id },
             include: {
-                product: true
+                product: true,
+                adminProduct: true
             }
         });
 
@@ -31,7 +32,8 @@ const createRazorpayOrder = async (req, res) => {
         // Calculate Total
         let total_amount = 0;
         cartItems.forEach(item => {
-            total_amount += parseFloat(item.product.product_price) * item.quantity;
+            const price = item.product ? item.product.product_price : (item.adminProduct ? item.adminProduct.product_price : 0);
+            total_amount += parseFloat(price) * item.quantity;
         });
 
         // Razorpay expects amount in paise (multiply by 100)
@@ -65,7 +67,8 @@ const verifyPayment = async (req, res) => {
             razorpay_order_id,
             razorpay_payment_id,
             razorpay_signature,
-            user_id // We need to pass this back from frontend or auth token
+            user_id,
+            shipping_address // New Field
         } = req.body;
 
         // Verify Signature
@@ -89,7 +92,8 @@ const verifyPayment = async (req, res) => {
                         include: {
                             vendor: true
                         }
-                    }
+                    },
+                    adminProduct: true
                 }
             });
 
@@ -104,27 +108,38 @@ const verifyPayment = async (req, res) => {
             // 2. Calculate totals and Prepare Order Items
             let total_amount = 0;
             const orderItemsData = cartItems.map(item => {
-                const price = parseFloat(item.product.product_price);
+                const isVendorProduct = !!item.product;
+                const price = parseFloat(isVendorProduct ? item.product.product_price : item.adminProduct.product_price);
                 const quantity = item.quantity;
                 total_amount += price * quantity;
+
                 return {
-                    product_id: item.product_id,
-                    vendor_id: item.product.vendor_id,
+                    product_id: isVendorProduct ? item.product_id : null,
+                    admin_product_id: isVendorProduct ? null : item.admin_product_id,
+                    vendor_id: isVendorProduct ? item.product.vendor_id : null,
                     price: price,
                     quantity: quantity
                 };
             });
 
             // 3. Transaction: Create Order, Payment, Commissions, Clear Cart
-            const result = await prisma.$transaction(async (prisma) => {
+            const result = await prisma.$transaction(async (tx) => {
 
                 // A. Create Order
-                const newOrder = await prisma.order.create({
+                const newOrder = await tx.order.create({
                     data: {
                         user_id,
                         total_amount,
                         payment_status: "paid", // CONFIRMED
                         order_status: "pending", // To be processed by admin/vendors
+                        shippingAddress: shipping_address ? {
+                            create: {
+                                address: shipping_address.address,
+                                city: shipping_address.city,
+                                state: shipping_address.state,
+                                pincode: shipping_address.pincode
+                            }
+                        } : undefined,
                         orderItems: {
                             create: orderItemsData
                         }
@@ -135,7 +150,7 @@ const verifyPayment = async (req, res) => {
                 });
 
                 // B. Create Payment Record
-                await prisma.payment.create({
+                await tx.payment.create({
                     data: {
                         order_id: newOrder.order_id,
                         amount: total_amount,
@@ -146,19 +161,21 @@ const verifyPayment = async (req, res) => {
                     }
                 });
 
-                // C. Create Commissions (fetch vendor specific rate)
+                // C. Create Commissions (Only for Vendor Products)
                 // We need to group items by vendor to calculate specific vendor commissions.
                 const vendorMap = new Map();
                 orderItemsData.forEach(item => {
-                    if (!vendorMap.has(item.vendor_id)) {
-                        vendorMap.set(item.vendor_id, 0);
+                    if (item.vendor_id) { // Only if vendor exists
+                        if (!vendorMap.has(item.vendor_id)) {
+                            vendorMap.set(item.vendor_id, 0);
+                        }
+                        vendorMap.set(item.vendor_id, vendorMap.get(item.vendor_id) + (item.price * item.quantity));
                     }
-                    vendorMap.set(item.vendor_id, vendorMap.get(item.vendor_id) + (item.price * item.quantity));
                 });
 
                 // We need to fetch vendors to get their commission rates
                 const vendorIds = Array.from(vendorMap.keys());
-                const vendors = await prisma.vendor.findMany({
+                const vendors = await tx.vendor.findMany({
                     where: {
                         id: { in: vendorIds }
                     }
@@ -173,7 +190,7 @@ const verifyPayment = async (req, res) => {
                     const rate = vendorRateMap.get(vId);
                     const commAmount = vTotal * rate;
 
-                    await prisma.commission.create({
+                    await tx.commission.create({
                         data: {
                             vendor_id: vId,
                             order_id: newOrder.order_id,
@@ -183,11 +200,14 @@ const verifyPayment = async (req, res) => {
                 }
 
                 // D. Clear Cart
-                await prisma.cart.deleteMany({
+                await tx.cart.deleteMany({
                     where: { user_id }
                 });
 
                 return newOrder;
+            }, {
+                maxWait: 5000, // default: 2000
+                timeout: 10000 // default: 5000
             });
 
             res.json({
