@@ -6,7 +6,9 @@ const {
     getAllOrders,
     getVendorOrders,
     updateOrderStatus,
-    updateOrderItemStatus
+    updateOrderItemStatus,
+    getUserOrders,
+    getOrderById
 } = require("../controllers/orderController");
 
 /**
@@ -67,41 +69,23 @@ const {
 
 /**
  * @swagger
- * /order:
- *   post:
- *     summary: Place a new order
+ * /order/user/{userId}:
+ *   get:
+ *     summary: Get all orders for a specific user
  *     tags: [Order]
  *     security:
  *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - user_id
- *             properties:
- *               user_id:
- *                 type: string
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
  *     responses:
- *       201:
- *         description: Order placed successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 order:
- *                   $ref: '#/components/schemas/Order'
- *       400:
- *         description: Cart is empty or invalid
- *       500:
- *         description: Server error
+ *       200:
+ *         description: User order history
  */
-router.post("/", verifyToken, createOrder);
+router.get('/user/:userId', verifyToken, getUserOrders);
 
 /**
  * @swagger
@@ -122,6 +106,69 @@ router.post("/", verifyToken, createOrder);
  *                 $ref: '#/components/schemas/Order'
  */
 router.get("/admin", verifyToken, getAllOrders);
+
+/**
+ * @swagger
+ * /order/{orderId}:
+ *   get:
+ *     summary: Get single order details (Status)
+ *     tags: [Order]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Order details
+ */
+router.get('/:orderId', verifyToken, getOrderById);
+
+/**
+ * @swagger
+ * /order:
+ *   post:
+ *     summary: Place a new order
+ *     tags: [Order]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *               contact_number:
+ *                 type: string
+ *                 description: Optional contact number to update user profile
+ *     responses:
+ *       201:
+ *         description: Order placed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 order:
+ *                   $ref: '#/components/schemas/Order'
+ *       400:
+ *         description: Cart is empty or invalid
+ *       500:
+ *         description: Server error
+ */
+router.post("/", verifyToken, createOrder);
+
+
 
 /**
  * @swagger
