@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - Heart Leaf Blooms</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+
+        :root {
+            --primary: #2d6a4f;
+            --secondary: #d8f3dc;
+            --bg: #fff;
+            --text: #1b4332;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text);
+            background: #f9f9f9;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            background: rgba(255, 255, 255, 0.95);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            color: var(--primary);
+            margin-bottom: 30px;
+        }
+
+        .order-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .order-id {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-processing {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-shipped {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-delivered {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .order-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .item-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: #eee;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .item-meta {
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        .review-btn {
+            background: white;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+
+        .review-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Review Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .modal-body {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 400px;
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 5px;
+            margin: 15px 0;
+            font-size: 1.5rem;
+            color: #ddd;
+            cursor: pointer;
+        }
+
+        .star.active {
+            color: #ffd700;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .submit-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo">Heart Leaf Blooms</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="my_orders.html" style="color: var(--primary); font-weight: 600;">My Orders</a>
+            <a href="cart.html">Cart</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Your Orders</h1>
+        <div id="ordersList">
+            <p>Loading orders...</p>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div class="modal" id="reviewModal">
+        <div class="modal-body">
+            <h3 style="margin-top:0;">Write a Review</h3>
+            <p id="reviewProductName" style="color:gray; font-size:0.9rem; margin-bottom:10px;"></p>
+
+            <input type="hidden" id="reviewProductId">
+            <input type="hidden" id="reviewAdminProductId">
+
+            <div class="rating-stars" id="ratingStars">
+                <span data-val="1" class="star">&#9733;</span>
+                <span data-val="2" class="star">&#9733;</span>
+                <span data-val="3" class="star">&#9733;</span>
+                <span data-val="4" class="star">&#9733;</span>
+                <span data-val="5" class="star">&#9733;</span>
+            </div>
+            <input type="hidden" id="ratingValue" value="0">
+
+            <textarea id="reviewText" placeholder="Share your experience..."></textarea>
+
+            <button class="submit-btn" onclick="submitReview()">Submit Review</button>
+            <button style="width:100%; background:none; border:none; padding:10px; cursor:pointer; color:gray;"
+                onclick="closeReviewModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:7071' : 'http://localhost:7071';
+        const userId = localStorage.getItem('user_id');
+
+        if (!userId) {
+            window.location.href = 'user_login.html';
+        }
+
+        async function loadOrders() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/order/user/${userId}`, { credentials: 'include' });
+                const orders = await res.json();
+                const container = document.getElementById('ordersList');
+                container.innerHTML = '';
+
+                if (orders.length === 0) {
+                    container.innerHTML = '<p>No orders found.</p>';
+                    return;
+                }
+
+                orders.forEach(order => {
+                    const date = new Date(order.createdAt).toLocaleDateString();
+
+                    let itemsHtml = '';
+                    order.orderItems.forEach(item => {
+                        let name = 'Product';
+                        let img = '';
+                        let pId = null;
+                        let aId = null;
+
+                        if (item.product) {
+                            name = item.product.product_name;
+                            img = item.product.images?.[0]?.small_url || '';
+                            pId = item.product.product_id;
+                        } else if (item.adminProduct) {
+                            name = item.adminProduct.product_name;
+                            img = item.adminProduct.images?.[0]?.small_url || '';
+                            aId = item.adminProduct.product_id;
+                        }
+
+                        // Determine if we can review (e.g. only if delivered? allowing always for now)
+                        let reviewBtn = '';
+                        if (order.order_status === 'delivered' || order.order_status === 'completed' || true) { // Allow always for demo
+                            reviewBtn = `<button class="review-btn" onclick="openReviewModal('${pId}', '${aId}', '${name.replace(/'/g, "\\'")}')">Review</button>`;
+                        }
+
+                        itemsHtml += `
+                            <div class="order-item">
+                                <img src="${img}" class="item-img" alt="${name}">
+                                <div class="item-details">
+                                    <div class="item-name">${name}</div>
+                                    <div class="item-meta">Qty: ${item.quantity} | ₹${item.price}</div>
+                                </div>
+                                ${reviewBtn}
+                            </div>
+                        `;
+                    });
+
+                    const el = document.createElement('div');
+                    el.className = 'order-card';
+                    el.innerHTML = `
+                        <div class="order-header">
+                            <div>
+                                <div class="order-id">Order #${order.order_id.substring(0, 8)}</div>
+                                <small style="color:#888;">${date}</small>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-weight:bold;">₹${order.total_amount}</div>
+                                <span class="status-badge status-${order.order_status?.toLowerCase() || 'pending'}">${order.order_status || 'Pending'}</span>
+                            </div>
+                        </div>
+                        <div>
+                            ${itemsHtml}
+                        </div>
+                    `;
+                    container.appendChild(el);
+                });
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById('ordersList').innerHTML = '<p>Error loading orders.</p>';
+            }
+        }
+
+        // Review Modal Logic
+        function openReviewModal(pId, aId, pName) {
+            document.getElementById('reviewModal').style.display = 'flex';
+            document.getElementById('reviewProductName').innerText = pName;
+            document.getElementById('reviewProductId').value = pId === 'null' ? '' : pId;
+            document.getElementById('reviewAdminProductId').value = aId === 'null' ? '' : aId;
+            resetStars();
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewModal').style.display = 'none';
+        }
+
+        // Star Rating
+        const stars = document.querySelectorAll('.star');
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                const val = parseInt(star.getAttribute('data-val'));
+                document.getElementById('ratingValue').value = val;
+                updateStars(val);
+            });
+        });
+
+        function updateStars(val) {
+            stars.forEach(s => {
+                const sVal = parseInt(s.getAttribute('data-val'));
+                if (sVal <= val) s.classList.add('active');
+                else s.classList.remove('active');
+            });
+        }
+
+        function resetStars() {
+            document.getElementById('ratingValue').value = 0;
+            updateStars(0);
+            document.getElementById('reviewText').value = '';
+        }
+
+        async function submitReview() {
+            const pId = document.getElementById('reviewProductId').value;
+            const aId = document.getElementById('reviewAdminProductId').value;
+            const rating = document.getElementById('ratingValue').value;
+            const review = document.getElementById('reviewText').value;
+
+            if (rating == 0) {
+                alert('Please select a rating');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/review`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        product_id: pId || undefined,
+                        admin_product_id: aId || undefined,
+                        rating: parseInt(rating),
+                        review
+                    })
+                });
+
+                if (res.ok) {
+                    alert('Review submitted!');
+                    closeReviewModal();
+                } else {
+                    const err = await res.json();
+                    alert('Failed: ' + (err.error || err.message));
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Error submitting review');
+            }
+        }
+
+        async function logout() {
+            try {
+                await fetch(`${API_BASE_URL}/user/logout`, { method: 'POST', credentials: 'include' });
+                localStorage.removeItem('user_id');
+                localStorage.removeItem('user_name');
+                window.location.href = 'index.html';
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        loadOrders();
+    </script>
+
+</body>
+
+</html>

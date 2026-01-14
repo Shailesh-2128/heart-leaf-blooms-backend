@@ -156,6 +156,18 @@ exports.Prisma.UserScalarFieldEnum = {
   username: 'username',
   user_email: 'user_email',
   user_password: 'user_password',
+  mobile_number: 'mobile_number',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ReviewScalarFieldEnum = {
+  review_id: 'review_id',
+  user_id: 'user_id',
+  product_id: 'product_id',
+  admin_product_id: 'admin_product_id',
+  rating: 'rating',
+  review: 'review',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -287,7 +299,8 @@ exports.Prisma.ShippingAddressScalarFieldEnum = {
   address: 'address',
   city: 'city',
   state: 'state',
-  pincode: 'pincode'
+  pincode: 'pincode',
+  phone: 'phone'
 };
 
 exports.Prisma.SortOrder = {
@@ -315,6 +328,7 @@ exports.Prisma.ModelName = {
   Admin: 'Admin',
   Vendor: 'Vendor',
   User: 'User',
+  Review: 'Review',
   Address: 'Address',
   Cart: 'Cart',
   Wishlist: 'Wishlist',

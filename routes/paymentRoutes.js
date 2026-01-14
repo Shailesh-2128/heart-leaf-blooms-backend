@@ -103,6 +103,19 @@ router.post('/create-order', verifyToken, paymentController.createRazorpayOrder)
  *                 type: string
  *               razorpay_signature:
  *                 type: string
+ *               contact_number:
+ *                 type: string
+ *               shipping_address:
+ *                 type: object
+ *                 properties:
+ *                   address:
+ *                     type: string
+ *                   city:
+ *                     type: string
+ *                   state:
+ *                     type: string
+ *                   pincode:
+ *                     type: string
  *               user_id:
  *                 type: string
  *     responses:

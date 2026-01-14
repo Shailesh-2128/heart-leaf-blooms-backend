@@ -125,6 +125,21 @@
             color: #155724;
         }
 
+        .shipped {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
         /* Modal for Category */
         #catModal {
             display: none;
@@ -160,15 +175,70 @@
 <body>
     <div class="sidebar">
         <h2>Admin Panel</h2>
-        <button onclick="showSection('categories')" id="btn-categories" class="active">Categories</button>
+        <button onclick="showSection('home')" id="btn-home" class="active">Home</button>
+        <button onclick="showSection('categories')" id="btn-categories">Categories</button>
         <button onclick="showSection('my-products')" id="btn-my-products">My Products</button>
         <button onclick="showSection('orders')" id="btn-orders">Orders</button>
         <button onclick="showSection('inventory')" id="btn-inventory">Inventory</button>
+        <button onclick="showSection('users')" id="btn-users">Users</button>
+        <button onclick="showSection('reviews')" id="btn-reviews">Reviews</button>
         <button onclick="logout()" style="margin-top: auto;">Logout</button>
     </div>
 
     <div class="main-content">
 
+        <!-- Home Section (Dashboard Stats) -->
+        <div id="section-home">
+            <div class="header">
+                <h1>Dashboard Overview</h1>
+            </div>
+
+            <div class="card-grid" style="margin-bottom: 40px;">
+                <div class="card">
+                    <h3>Orders Today</h3>
+                    <p style="font-size: 2.5rem; font-weight: bold; margin: 10px 0; color: var(--primary);"
+                        id="stat-orders-today">0</p>
+                    <small style="color: gray;">Orders placed today</small>
+                </div>
+                <div class="card">
+                    <h3>Total Revenue</h3>
+                    <p style="font-size: 2.5rem; font-weight: bold; margin: 10px 0; color: var(--primary);"
+                        id="stat-revenue">₹0</p>
+                    <small style="color: gray;">Total revenue credited</small>
+                </div>
+                <div class="card">
+                    <h3>Total Inventory</h3>
+                    <p style="font-size: 2.5rem; font-weight: bold; margin: 10px 0; color: var(--primary);"
+                        id="stat-inventory">0</p>
+                    <small style="color: gray;">Active items (Admin + Vendor)</small>
+                </div>
+                <div class="card">
+                    <h3>Total Users</h3>
+                    <p style="font-size: 2.5rem; font-weight: bold; margin: 10px 0; color: var(--primary);"
+                        id="stat-users">0</p>
+                    <small style="color: gray;">Registered Users</small>
+                </div>
+            </div>
+
+            <div class="header">
+                <h2>Recent Orders</h2>
+                <button onclick="showSection('orders')"
+                    style="background:none; border:none; color:var(--primary); cursor:pointer; font-weight:600;">View
+                    All &rarr;</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>User</th>
+                        <th>Total</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="recentOrdersList"></tbody>
+            </table>
+        </div>
 
         <div id="section-categories" style="display:none">
             <div class="header">
@@ -208,10 +278,6 @@
             </table>
         </div>
 
-
-
-
-
         <div id="section-my-products" style="display:none">
             <div class="header">
                 <h1>My Products (Admin)</h1>
@@ -249,6 +315,42 @@
                     </tr>
                 </thead>
                 <tbody id="inventoryList"></tbody>
+            </table>
+        </div>
+
+        <div id="section-users" style="display:none">
+            <div class="header">
+                <h1>Registered Users</h1>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Contact</th>
+                        <th>Address</th>
+                    </tr>
+                </thead>
+                <tbody id="userList"></tbody>
+            </table>
+        </div>
+
+        <div id="section-reviews" style="display:none">
+            <div class="header">
+                <h1>Product Reviews</h1>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>User</th>
+                        <th>Rating</th>
+                        <th>Review</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="reviewList"></tbody>
             </table>
         </div>
 
@@ -338,8 +440,6 @@
             </div>
         </div>
 
-
-
         <div id="catModal">
             <div class="modal-body">
                 <h3>Add Category</h3>
@@ -353,29 +453,84 @@
             </div>
         </div>
 
+        <!-- Order Detail Modal -->
+        <div id="orderDetailModal"
+            style="display:none; position: fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:200;">
+            <div class="modal-body" style="width: 600px; max-height: 90vh; overflow-y: auto;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h3 style="margin:0;">Order Details</h3>
+                    <button onclick="closeOrderDetailModal()"
+                        style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+                </div>
+
+                <div id="orderDetailContent"></div>
+            </div>
+        </div>
+
         <script>
             // Use existing vendor logic, extend with categories
 
             const API_BASE_URL = window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:7071' : 'http://localhost:7071';
+            let allOrders = [];
 
             function showSection(id) {
+                document.getElementById('section-home').style.display = id === 'home' ? 'block' : 'none';
                 document.getElementById('section-categories').style.display = id === 'categories' ? 'block' : 'none';
                 document.getElementById('section-orders').style.display = id === 'orders' ? 'block' : 'none';
                 document.getElementById('section-my-products').style.display = id === 'my-products' ? 'block' : 'none';
                 document.getElementById('section-inventory').style.display = id === 'inventory' ? 'block' : 'none';
+                document.getElementById('section-users').style.display = id === 'users' ? 'block' : 'none';
+                document.getElementById('section-reviews').style.display = id === 'reviews' ? 'block' : 'none';
 
+                document.getElementById('btn-home').classList.toggle('active', id === 'home');
                 document.getElementById('btn-categories').classList.toggle('active', id === 'categories');
                 document.getElementById('btn-orders').classList.toggle('active', id === 'orders');
                 document.getElementById('btn-my-products').classList.toggle('active', id === 'my-products');
                 document.getElementById('btn-inventory').classList.toggle('active', id === 'inventory');
+                document.getElementById('btn-users').classList.toggle('active', id === 'users');
+                document.getElementById('btn-reviews').classList.toggle('active', id === 'reviews');
 
+                if (id === 'home') loadDashboardStats();
                 if (id === 'categories') loadCategories();
                 if (id === 'orders') loadOrders();
                 if (id === 'my-products') loadMyProducts(); // Admin products
                 if (id === 'inventory') loadInventory();
+                if (id === 'users') loadUsers();
+                if (id === 'reviews') loadReviews();
             }
 
+            async function loadDashboardStats() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/admin/dashboard-stats`, { credentials: 'include' });
+                    const data = await res.json();
 
+                    document.getElementById('stat-orders-today').innerText = data.ordersToday || 0;
+                    document.getElementById('stat-revenue').innerText = '₹' + (data.totalRevenue || 0);
+                    document.getElementById('stat-inventory').innerText = data.totalInventory || 0;
+                    document.getElementById('stat-users').innerText = data.totalUsers || 0;
+
+                    const tbody = document.getElementById('recentOrdersList');
+                    tbody.innerHTML = '';
+                    if (data.recentOrders && data.recentOrders.length > 0) {
+                        data.recentOrders.forEach(o => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td>${o.order_id.substring(0, 8)}...</td>
+                                <td>${o.user ? o.user.username : 'Unknown'}</td>
+                                <td>₹${o.total_amount}</td>
+                                <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+                                <td><span class="status-badge ${o.order_status}">${o.order_status}</span></td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No recent orders</td></tr>';
+                    }
+
+                } catch (e) {
+                    console.error("Error loading stats:", e);
+                }
+            }
 
             async function loadCategories() {
                 try {
@@ -402,11 +557,11 @@
             async function loadOrders() {
                 try {
                     const res = await fetch(`${API_BASE_URL}/order/admin`, { credentials: 'include' });
-                    const orders = await res.json();
+                    allOrders = await res.json();
                     const tbody = document.getElementById('orderList');
                     tbody.innerHTML = '';
 
-                    orders.forEach(o => {
+                    allOrders.forEach((o, index) => {
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
                         <td>${o.order_id.substring(0, 8)}...</td>
@@ -414,6 +569,7 @@
                         <td>₹${o.total_amount}</td>
                         <td><span class="status-badge ${o.order_status}">${o.order_status}</span></td>
                         <td>
+                             <button onclick="openOrderDetailModal(${index})" style="background:#007bff; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">View</button>
                              <button onclick="updateOrderStatus('${o.order_id}', 'approved')">Approve</button>
                              <button onclick="updateOrderStatus('${o.order_id}', 'shipped')">Ship</button>
                              <button onclick="updateOrderStatus('${o.order_id}', 'completed')">Complete</button>
@@ -424,6 +580,93 @@
                 } catch (e) { console.error(e); }
             }
 
+            function openOrderDetailModal(index) {
+                const order = allOrders[index];
+                if (!order) return;
+
+                const modal = document.getElementById('orderDetailModal');
+                const content = document.getElementById('orderDetailContent');
+
+                // Determine Address
+                let addressHtml = '<p>No address found.</p>';
+                if (order.shippingAddress) {
+                    addressHtml = `
+                        <p><strong>Shipping Address:</strong><br>
+                        ${order.shippingAddress.address}, ${order.shippingAddress.city}, ${order.shippingAddress.state} - ${order.shippingAddress.pincode}<br>
+                        <strong>Phone:</strong> ${order.shippingAddress.phone || 'N/A'}</p>
+                    `;
+                } else if (order.user && order.user.addresses && order.user.addresses.length > 0) {
+                    // Fallback to first user address
+                    const addr = order.user.addresses[0];
+                    addressHtml = `
+                        <p><strong>User Address (Fallback):</strong><br>
+                        ${addr.address}, ${addr.city}, ${addr.state} - ${addr.pincode}</p>
+                    `;
+                }
+
+                // Order Items
+                let itemsHtml = `
+                    <table style="width:100%; margin-top:10px;">
+                        <thead>
+                            <tr style="background:#eee;">
+                                <th style="padding:8px;">Product</th>
+                                <th style="padding:8px;">Vendor</th>
+                                <th style="padding:8px;">Qty</th>
+                                <th style="padding:8px;">Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                if (order.orderItems && order.orderItems.length > 0) {
+                    order.orderItems.forEach(item => {
+                        itemsHtml += `
+                            <tr>
+                                <td style="padding:8px;">
+                                    ${item.product ? item.product.product_name : 'Unknown Product'}
+                                    <br><small style="color:gray;">${item.product ? item.product.product_title : ''}</small>
+                                </td>
+                                <td style="padding:8px;">${item.vendor ? item.vendor.shopName : 'Admin'}</td>
+                                <td style="padding:8px;">${item.quantity}</td>
+                                <td style="padding:8px;">₹${item.price}</td>
+                            </tr>
+                        `;
+                    });
+                }
+                itemsHtml += '</tbody></table>';
+
+                content.innerHTML = `
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
+                        <div>
+                            <p><strong>Order ID:</strong> ${order.order_id}</p>
+                            <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
+                            <p><strong>Status:</strong> <span class="status-badge ${order.order_status}">${order.order_status}</span></p>
+                        </div>
+                        <div>
+                            <p><strong>User:</strong> ${order.user ? order.user.username : 'Unknown'}</p>
+                            <p><strong>Email:</strong> ${order.user ? order.user.user_email : 'Unknown'}</p>
+                            <p><strong>Mobile:</strong> ${order.user ? (order.user.mobile_number || 'N/A') : 'N/A'}</p>
+                        </div>
+                    </div>
+                    
+                    <div style="background:#f9f9f9; padding:15px; border-radius:8px; margin-bottom:20px;">
+                        ${addressHtml}
+                    </div>
+
+                    <h4>Order Items</h4>
+                    ${itemsHtml}
+
+                    <div style="text-align:right; margin-top:20px;">
+                        <h3>Total: ₹${order.total_amount}</h3>
+                    </div>
+                `;
+
+                modal.style.display = 'flex';
+            }
+
+            function closeOrderDetailModal() {
+                document.getElementById('orderDetailModal').style.display = 'none';
+            }
+
             async function updateOrderStatus(id, status) {
                 try {
                     await fetch(`${API_BASE_URL}/order/admin/${id}`, {
@@ -432,7 +675,7 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ status })
                     });
-                    loadOrders();
+                    loadOrders(); // Reload to update list
                 } catch (e) { console.error(e); }
             }
 
@@ -468,6 +711,73 @@
                 } catch (e) {
                     window.location.href = 'admin_login.html';
                 }
+            }
+
+            async function loadInventory() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/admin/inventory`, { credentials: 'include' });
+                    const items = await res.json();
+                    const tbody = document.getElementById('inventoryList');
+                    tbody.innerHTML = '';
+                    items.forEach(i => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${i.name}</td>
+                            <td>${i.owner_name} (${i.owner_type})</td>
+                            <td>₹${i.price}</td>
+                            <td>${i.stock !== null ? i.stock : '-'}</td>
+                             <td><span class="status-badge ${i.inventory_status === 'In Stock' ? 'approved' : 'cancelled'}">${i.inventory_status}</span></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
+            async function loadUsers() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/admin/users`, { credentials: 'include' });
+                    const users = await res.json();
+                    const tbody = document.getElementById('userList');
+                    tbody.innerHTML = '';
+                    users.forEach(u => {
+                        const addr = u.addresses && u.addresses.length > 0 ? `${u.addresses[0].city}, ${u.addresses[0].state}` : 'N/A';
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${u.user_id.substring(0, 8)}...</td>
+                            <td>${u.username}</td>
+                            <td>${u.user_email}</td>
+                            <td>${u.mobile_number || '-'}</td>
+                            <td>${addr}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } catch (e) { console.error(e); }
+            }
+
+            async function loadReviews() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/review/admin/all`, { credentials: 'include' });
+                    const reviews = await res.json();
+                    const tbody = document.getElementById('reviewList');
+                    tbody.innerHTML = '';
+                    reviews.forEach(r => {
+                        let prodName = 'Unknown';
+                        if (r.product) prodName = r.product.product_name;
+                        if (r.adminProduct) prodName = r.adminProduct.product_name;
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${prodName}</td>
+                            <td>${r.user ? r.user.username : 'Unknown'}</td>
+                            <td>${r.rating} / 5</td>
+                            <td>${r.review}</td>
+                            <td>${new Date(r.createdAt).toLocaleDateString()}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } catch (e) { console.error(e); }
             }
 
 
@@ -704,7 +1014,7 @@
             }
 
             // Init
-            showSection('categories');
+            showSection('home');
         </script>
 </body>
 

@@ -281,6 +281,8 @@
                     style="width:100%; margin-bottom:15px; padding:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
                 <input type="text" id="addrZip" placeholder="Pincode/Zip" required
                     style="width:100%; margin-bottom:15px; padding:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+                <input type="tel" id="addrPhone" placeholder="Contact Number" required
+                    style="width:100%; margin-bottom:15px; padding:10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
 
                 <button type="submit"
                     style="background:var(--primary); color:white; border:none; padding:12px; width:100%; border-radius:6px; cursor:pointer; font-weight:600;">Proceed
@@ -432,11 +434,12 @@
                 pincode: document.getElementById('addrZip').value
             };
 
+            const contactNumber = document.getElementById('addrPhone').value;
             closeAddressModal();
-            await initiatePayment(address);
+            await initiatePayment(address, contactNumber);
         }
 
-        async function initiatePayment(shippingAddress) {
+        async function initiatePayment(shippingAddress, contactNumber) {
             try {
                 // 1. Create Order on Backend (and at Razorpay)
                 const res = await fetch(`${API_BASE_URL}/payment/create-order`, {
@@ -474,8 +477,10 @@
                                     razorpay_order_id: response.razorpay_order_id,
                                     razorpay_payment_id: response.razorpay_payment_id,
                                     razorpay_signature: response.razorpay_signature,
+                                    razorpay_signature: response.razorpay_signature,
                                     user_id: userId,
-                                    shipping_address: shippingAddress // Pass address here
+                                    shipping_address: shippingAddress,
+                                    contact_number: contactNumber
                                 })
                             });
 

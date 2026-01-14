@@ -217,6 +217,19 @@ const listVendors = async (req, res) => {
     }
 };
 
+const listUsers = async (req, res) => {
+    try {
+        const users = await prisma.user.findMany({
+            include: {
+                addresses: true
+            }
+        });
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     createAdmin,
     loginAdmin,
@@ -224,5 +237,6 @@ module.exports = {
     displayAdmin,
     updateAdmin,
     getVendorPayoutStats,
-    listVendors
+    listVendors,
+    listUsers
 };

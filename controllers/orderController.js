@@ -4,7 +4,14 @@ const { v4: uuidv4 } = require('uuid');
 // Create Order (User)
 const createOrder = async (req, res) => {
     try {
-        const { user_id } = req.body; // In a real app, get this from auth token
+        const { user_id, contact_number } = req.body;
+
+        if (contact_number) {
+            await prisma.user.update({
+                where: { user_id },
+                data: { mobile_number: contact_number }
+            }).catch(err => console.error("Error updating mobile:", err));
+        }
 
         // 1. Get User's Cart
         const cartItems = await prisma.cart.findMany({
@@ -72,11 +79,16 @@ const getAllOrders = async (req, res) => {
     try {
         const orders = await prisma.order.findMany({
             include: {
-                user: true, // Include user details
+                user: {
+                    include: {
+                        addresses: true
+                    }
+                },
+                shippingAddress: true,
                 orderItems: {
                     include: {
                         product: true,
-                        vendor: true // Admin might want to know which vendor
+                        vendor: true
                     }
                 }
             },
@@ -85,6 +97,66 @@ const getAllOrders = async (req, res) => {
             }
         });
         res.status(200).json(orders);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Get User Orders (History)
+const getUserOrders = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const orders = await prisma.order.findMany({
+            where: { user_id: userId },
+            include: {
+                orderItems: {
+                    include: {
+                        product: true,
+                        adminProduct: true,
+                        vendor: true
+                    }
+                },
+                shippingAddress: true,
+                commissions: false, // User doesn't need to see internal comms
+                payments: true
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+        res.status(200).json(orders);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Get Single Order (Status/Details)
+const getOrderById = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const order = await prisma.order.findUnique({
+            where: { order_id: orderId },
+            include: {
+                orderItems: {
+                    include: {
+                        product: true,
+                        adminProduct: true,
+                        vendor: true
+                    }
+                },
+                shippingAddress: true,
+                user: {
+                    select: {
+                        username: true,
+                        user_email: true,
+                        mobile_number: true
+                    }
+                },
+                payments: true
+            }
+        });
+        if (!order) return res.status(404).json({ error: "Order not found" });
+        res.status(200).json(order);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -192,5 +264,7 @@ module.exports = {
     getAllOrders,
     getVendorOrders,
     updateOrderStatus,
-    updateOrderItemStatus
+    updateOrderItemStatus,
+    getUserOrders,
+    getOrderById
 };

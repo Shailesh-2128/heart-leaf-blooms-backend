@@ -29,6 +29,19 @@ const createRazorpayOrder = async (req, res) => {
             return res.status(400).json({ error: "Cart is empty" });
         }
 
+        // Check Inventory (Stock)
+        for (const item of cartItems) {
+            if (item.product) {
+                if (item.product.stock < item.quantity) {
+                    return res.status(400).json({ error: `Insufficient stock for ${item.product.product_name}` });
+                }
+            } else if (item.adminProduct) {
+                if (item.adminProduct.stock < item.quantity) {
+                    return res.status(400).json({ error: `Insufficient stock for ${item.adminProduct.product_name}` });
+                }
+            }
+        }
+
         // Calculate Total
         let total_amount = 0;
         cartItems.forEach(item => {
@@ -68,8 +81,16 @@ const verifyPayment = async (req, res) => {
             razorpay_payment_id,
             razorpay_signature,
             user_id,
-            shipping_address // New Field
+            shipping_address, // New Field
+            contact_number
         } = req.body;
+
+        if (contact_number) {
+            await prisma.user.update({
+                where: { user_id },
+                data: { mobile_number: contact_number }
+            }).catch(e => console.error("User mobile update failed", e));
+        }
 
         // Verify Signature
         const body = razorpay_order_id + "|" + razorpay_payment_id;
@@ -84,7 +105,6 @@ const verifyPayment = async (req, res) => {
             // --- Payment Successful Logic ---
 
             // 1. Fetch Cart Items again (to create order)
-            // Ideally we should have locked these, but for now we fetch again.
             const cartItems = await prisma.cart.findMany({
                 where: { user_id },
                 include: {
@@ -98,10 +118,6 @@ const verifyPayment = async (req, res) => {
             });
 
             if (cartItems.length === 0) {
-                // This is an edge case: Payment success but cart empty?
-                // Maybe user cleared it in another tab? 
-                // We should record the payment anyway but flagging it might be hard.
-                // For now, assume cart is still there.
                 return res.status(400).json({ error: "Cart not found for order creation." });
             }
 
@@ -122,7 +138,7 @@ const verifyPayment = async (req, res) => {
                 };
             });
 
-            // 3. Transaction: Create Order, Payment, Commissions, Clear Cart
+            // 3. Transaction: Create Order, Payment, Commissions, Clear Cart, UPDATE STOCK
             const result = await prisma.$transaction(async (tx) => {
 
                 // A. Create Order
@@ -137,7 +153,8 @@ const verifyPayment = async (req, res) => {
                                 address: shipping_address.address,
                                 city: shipping_address.city,
                                 state: shipping_address.state,
-                                pincode: shipping_address.pincode
+                                pincode: shipping_address.pincode,
+                                phone: contact_number
                             }
                         } : undefined,
                         orderItems: {
@@ -149,7 +166,36 @@ const verifyPayment = async (req, res) => {
                     }
                 });
 
-                // B. Create Payment Record
+                // B. Stock Deduction
+                for (const item of orderItemsData) {
+                    if (item.product_id) {
+                        const updatedProduct = await tx.product.update({
+                            where: { product_id: item.product_id },
+                            data: { stock: { decrement: item.quantity } }
+                        });
+                        // Auto status update if out of stock
+                        if (updatedProduct.stock <= 0) {
+                            // Ideally use update without fetching return, but we have result here
+                            await tx.product.update({
+                                where: { product_id: item.product_id },
+                                data: { is_available: false } // or status custom field? Schema says is_available boolean for Vendor Product
+                            });
+                        }
+                    } else if (item.admin_product_id) {
+                        const updatedProduct = await tx.products.update({
+                            where: { product_id: item.admin_product_id },
+                            data: { stock: { decrement: item.quantity } }
+                        });
+                        if (updatedProduct.stock <= 0) {
+                            await tx.products.update({
+                                where: { product_id: item.admin_product_id },
+                                data: { status: 'OUT_OF_STOCK' } // Enum for Admin Products
+                            });
+                        }
+                    }
+                }
+
+                // C. Create Payment Record
                 await tx.payment.create({
                     data: {
                         order_id: newOrder.order_id,
@@ -161,11 +207,10 @@ const verifyPayment = async (req, res) => {
                     }
                 });
 
-                // C. Create Commissions (Only for Vendor Products)
-                // We need to group items by vendor to calculate specific vendor commissions.
+                // D. Create Commissions (Only for Vendor Products)
                 const vendorMap = new Map();
                 orderItemsData.forEach(item => {
-                    if (item.vendor_id) { // Only if vendor exists
+                    if (item.vendor_id) {
                         if (!vendorMap.has(item.vendor_id)) {
                             vendorMap.set(item.vendor_id, 0);
                         }
@@ -173,41 +218,42 @@ const verifyPayment = async (req, res) => {
                     }
                 });
 
-                // We need to fetch vendors to get their commission rates
                 const vendorIds = Array.from(vendorMap.keys());
-                const vendors = await tx.vendor.findMany({
-                    where: {
-                        id: { in: vendorIds }
-                    }
-                });
-
-                const vendorRateMap = new Map();
-                vendors.forEach(v => {
-                    vendorRateMap.set(v.id, parseFloat(v.commission_rate) || 0.10); // Default 10% if missing
-                });
-
-                for (const [vId, vTotal] of vendorMap.entries()) {
-                    const rate = vendorRateMap.get(vId);
-                    const commAmount = vTotal * rate;
-
-                    await tx.commission.create({
-                        data: {
-                            vendor_id: vId,
-                            order_id: newOrder.order_id,
-                            commission_amount: commAmount
+                if (vendorIds.length > 0) {
+                    const vendors = await tx.vendor.findMany({
+                        where: {
+                            id: { in: vendorIds }
                         }
                     });
+
+                    const vendorRateMap = new Map();
+                    vendors.forEach(v => {
+                        vendorRateMap.set(v.id, parseFloat(v.commission_rate) || 0.10);
+                    });
+
+                    for (const [vId, vTotal] of vendorMap.entries()) {
+                        const rate = vendorRateMap.get(vId);
+                        const commAmount = vTotal * rate;
+
+                        await tx.commission.create({
+                            data: {
+                                vendor_id: vId,
+                                order_id: newOrder.order_id,
+                                commission_amount: commAmount
+                            }
+                        });
+                    }
                 }
 
-                // D. Clear Cart
+                // E. Clear Cart
                 await tx.cart.deleteMany({
                     where: { user_id }
                 });
 
                 return newOrder;
             }, {
-                maxWait: 5000, // default: 2000
-                timeout: 10000 // default: 5000
+                maxWait: 5000,
+                timeout: 10000
             });
 
             res.json({

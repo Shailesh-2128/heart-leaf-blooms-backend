@@ -257,6 +257,7 @@
             <a href="wishlist.html">Wishlist</a>
             <a href="user_login.html" class="btn-auth" id="loginBtn">Login</a>
             <span id="userGreeting" style="display:none; color: var(--primary); font-weight: 600"></span>
+            <a href="my_orders.html" id="ordersBtn" style="display:none">My Orders</a>
             <a href="#" onclick="logout()" id="logoutBtn" style="display:none">Logout</a>
         </div>
     </nav>
@@ -290,6 +291,7 @@
             document.getElementById('loginBtn').style.display = 'none';
             document.getElementById('userGreeting').style.display = 'inline';
             document.getElementById('userGreeting').innerText = `Hi, ${userName}`;
+            document.getElementById('ordersBtn').style.display = 'inline';
             document.getElementById('logoutBtn').style.display = 'inline';
         }
 

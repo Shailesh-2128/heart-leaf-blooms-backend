@@ -54,16 +54,38 @@ model Vendor {
 }
 
 model User {
-  user_id       String @id
+  user_id       String  @id
   username      String
-  user_email    String @unique
+  user_email    String  @unique
   user_password String
+  mobile_number String?
 
   addresses Address[]
   cart      Cart[]
   wishlist  Wishlist[]
 
   orders Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reviews Review[]
+}
+
+model Review {
+  review_id String @id @default(uuid())
+
+  user_id String
+  user    User   @relation(fields: [user_id], references: [user_id])
+
+  product_id String?
+  product    Product? @relation(fields: [product_id], references: [product_id])
+
+  admin_product_id String?
+  adminProduct     Products? @relation(fields: [admin_product_id], references: [product_id])
+
+  rating Int
+  review String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -122,6 +144,7 @@ model Product {
   cartItems     Cart[]
   wishlistItems Wishlist[]
   orderItems    OrderItem[]
+  reviews       Review[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -245,6 +268,7 @@ model Products {
   cartItems     Cart[]
   wishlistItems Wishlist[]
   orderItems    OrderItem[]
+  reviews       Review[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -263,11 +287,12 @@ enum ProductStatus {
 }
 
 model ShippingAddress {
-  id       String @id @default(uuid())
-  order_id String @unique
-  order    Order  @relation(fields: [order_id], references: [order_id])
+  id       String  @id @default(uuid())
+  order_id String  @unique
+  order    Order   @relation(fields: [order_id], references: [order_id])
   address  String
   city     String
   state    String
   pincode  String
+  phone    String?
 }
