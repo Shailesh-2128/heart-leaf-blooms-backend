@@ -50,6 +50,28 @@ Authentication is handled via **HTTP-Only Cookies**.
     ```
 *   **Response**: `200 OK` (Sets `user_token` cookie)
 
+### Google SSO Login
+*   **Method**: `POST`
+*   **Endpoint**: `/user/google-login`
+*   **Payload**:
+    ```json
+    {
+      "token": "GOOGLE_ID_TOKEN_FROM_FRONTEND"
+    }
+    ```
+*   **Response**: `200 OK` (Sets `user_token` cookie), returns `{ message, token, user }`
+
+### Get Google Client ID
+*   **Method**: `GET`
+*   **Endpoint**: `/user/google-client-id`
+*   **Payload**: None
+*   **Response**: 
+    ```json
+    {
+      "clientId": "YOUR_GOOGLE_CLIENT_ID"
+    }
+    ```
+
 ### Get User Profile
 *   **Method**: `GET`
 *   **Endpoint**: `/user/:id` (Replace `:id` with User ID)
