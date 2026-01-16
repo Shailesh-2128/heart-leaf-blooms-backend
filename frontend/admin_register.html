@@ -116,40 +116,86 @@
     </div>
 
     <script>
+        let isOtpSent = false;
+
         document.getElementById('createForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
             const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            const otpInput = document.getElementById('otp');
+            const otp = otpInput ? otpInput.value : null;
+
+            const msg = document.getElementById('message');
+            msg.style.display = 'none';
+            msg.className = "message";
 
             try {
-                const response = await fetch('http://localhost:7071/admin/create', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ name, email, password })
-                });
+                if (!isOtpSent) {
+                    // Step 1: Send OTP
+                    const response = await fetch('http://localhost:7071/admin/generate-otp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
 
-                const result = await response.json();
+                    const result = await response.json();
 
-                if (response.ok || response.status === 201) {
-                    const msg = document.getElementById('message');
-                    msg.textContent = "Admin Created Successfully!";
-                    msg.className = "message success";
-                    msg.style.display = 'block';
-                    setTimeout(() => window.location.href = 'admin_login.html', 1500);
+                    if (response.ok) {
+                        isOtpSent = true;
+
+                        // Show OTP field
+                        const otpGroup = document.createElement('div');
+                        otpGroup.className = 'form-group';
+                        otpGroup.innerHTML = `
+                            <label for="otp">Enter OTP</label>
+                            <input type="text" id="otp" required placeholder="Check your email">
+                        `;
+                        // Insert before submit button
+                        const btn = document.querySelector('button[type="submit"]');
+                        btn.parentNode.insertBefore(otpGroup, btn);
+
+                        btn.textContent = "Verify & Create Admin";
+
+                        // Disable email to prevent changing it mid-flow
+                        document.getElementById('email').disabled = true;
+
+                        msg.textContent = result.message + ". Check your inbox.";
+                        msg.className = "message success";
+                        msg.style.display = 'block';
+                    } else {
+                        throw new Error(result.error || 'Failed to send OTP');
+                    }
+
                 } else {
-                    throw new Error(result.error || 'Failed to create admin');
+                    // Step 2: Create Admin with OTP
+                    const response = await fetch('http://localhost:7071/admin/create', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, email, password, otp })
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok || response.status === 201) {
+                        msg.textContent = "Admin Created Successfully!";
+                        msg.className = "message success";
+                        msg.style.display = 'block';
+                        setTimeout(() => window.location.href = 'admin_login.html', 1500);
+                    } else {
+                        throw new Error(result.error || 'Failed to create admin');
+                    }
                 }
             } catch (error) {
-                const msg = document.getElementById('message');
                 msg.textContent = error.message;
                 msg.className = "message";
                 msg.style.display = 'block';
             }
         });
+
+        // Initial button state
+        document.querySelector('button[type="submit"]').textContent = "Send OTP";
     </script>
 
 </body>
