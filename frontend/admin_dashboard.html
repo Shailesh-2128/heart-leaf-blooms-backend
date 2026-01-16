@@ -182,6 +182,7 @@
         <button onclick="showSection('inventory')" id="btn-inventory">Inventory</button>
         <button onclick="showSection('users')" id="btn-users">Users</button>
         <button onclick="showSection('reviews')" id="btn-reviews">Reviews</button>
+        <button onclick="showSection('banners')" id="btn-banners">Banners</button>
         <button onclick="logout()" style="margin-top: auto;">Logout</button>
     </div>
 
@@ -354,6 +355,29 @@
             </table>
         </div>
 
+        <!-- Banner Section -->
+        <div id="section-banners" style="display:none">
+            <div class="header">
+                <h1>Banner Management</h1>
+                <button onclick="openBannerModal()"
+                    style="padding: 10px 20px; background: #2d6a4f; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                    + Upload Banner
+                </button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Title</th>
+                        <th>Subtitle</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="bannerList"></tbody>
+            </table>
+        </div>
+
         <!-- Product Modal -->
 
 
@@ -453,6 +477,62 @@
             </div>
         </div>
 
+        <!-- Banner Upload Modal -->
+        <div id="bannerModal"
+            style="display:none; position: fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:202;">
+            <div class="modal-body" style="width: 400px;">
+                <h3>Upload Banner</h3>
+                <form id="bannerForm" onsubmit="uploadBanner(event); return false;">
+                    <p style="font-size:12px; color:gray;">Upload a banner image. You can optionally remove the
+                        background.</p>
+
+                    <label>Image *</label>
+                    <input type="file" name="image" required accept="image/*">
+
+                    <div style="margin: 10px 0; display:flex; align-items:center; gap:8px;">
+                        <input type="checkbox" name="removeBackground" id="removeBgCheckbox"
+                            style="width:auto; margin:0;">
+                        <label for="removeBgCheckbox" style="margin:0; font-size:0.9rem;">Remove Background</label>
+                    </div>
+
+                    <label>Title</label>
+                    <input type="text" name="title" placeholder="Banner Title">
+
+                    <label>Subtitle</label>
+                    <input type="text" name="subtitle" placeholder="Banner Subtitle">
+
+                    <div id="bannerLoader"
+                        style="display:none; color: var(--primary); font-weight:bold; margin-bottom:10px;">Processing
+                        Image... Please Wait</div>
+
+                    <button type="submit" id="btnSaveBanner"
+                        style="padding: 10px; width: 100%; background: #2d6a4f; color: white; border: none; border-radius: 8px; cursor: pointer;">Upload</button>
+                </form>
+                <button onclick="closeBannerModal()"
+                    style="padding: 10px; width: 100%; background: #eee; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px;">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Pop for OTP -->
+        <!-- Pop for OTP -->
+        <div id="otpModal"
+            style="display:none; position: fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:201;">
+            <div class="modal-body">
+                <h3 style="color: #c62828;">Verify Deletion</h3>
+                <p>An OTP has been sent to your admin email. Please enter it below to confirm deletion.</p>
+                <input type="hidden" id="deleteTargetId">
+                <input type="hidden" id="deleteType"> <!-- 'category' or 'product' -->
+                <input type="text" id="deleteOtpInput" placeholder="Enter OTP"
+                    style="text-align:center; font-size:1.2rem; letter-spacing:2px;">
+                <button onclick="confirmDeletion()"
+                    style="padding: 10px; width: 100%; background: #c62828; color: white; border: none; border-radius: 8px; cursor: pointer;">Delete
+                    Permanently</button>
+                <button onclick="closeOtpModal()"
+                    style="padding: 10px; width: 100%; background: #eee; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px;">Cancel</button>
+                <p id="otpMsg" style="text-align:center; margin-top:10px;"></p>
+            </div>
+        </div>
+
         <!-- Order Detail Modal -->
         <div id="orderDetailModal"
             style="display:none; position: fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:200;">
@@ -481,6 +561,7 @@
                 document.getElementById('section-inventory').style.display = id === 'inventory' ? 'block' : 'none';
                 document.getElementById('section-users').style.display = id === 'users' ? 'block' : 'none';
                 document.getElementById('section-reviews').style.display = id === 'reviews' ? 'block' : 'none';
+                document.getElementById('section-banners').style.display = id === 'banners' ? 'block' : 'none';
 
                 document.getElementById('btn-home').classList.toggle('active', id === 'home');
                 document.getElementById('btn-categories').classList.toggle('active', id === 'categories');
@@ -489,6 +570,7 @@
                 document.getElementById('btn-inventory').classList.toggle('active', id === 'inventory');
                 document.getElementById('btn-users').classList.toggle('active', id === 'users');
                 document.getElementById('btn-reviews').classList.toggle('active', id === 'reviews');
+                document.getElementById('btn-banners').classList.toggle('active', id === 'banners');
 
                 if (id === 'home') loadDashboardStats();
                 if (id === 'categories') loadCategories();
@@ -497,6 +579,7 @@
                 if (id === 'inventory') loadInventory();
                 if (id === 'users') loadUsers();
                 if (id === 'reviews') loadReviews();
+                if (id === 'banners') loadBanners();
             }
 
             async function loadDashboardStats() {
@@ -546,7 +629,7 @@
                         <td>${c.category_name}</td>
                         <td>${c.category_description}</td>
                         <td>
-                             <button onclick="deleteCategory(${c.category_id})">Delete</button>
+                             <button onclick="initiateCategoryDeletion(${c.category_id})" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button>
                         </td>
                     `;
                         tbody.appendChild(tr);
@@ -697,10 +780,118 @@
                 loadCategories();
             }
 
-            async function deleteCategory(id) {
-                if (confirm('Delete?')) {
-                    await fetch(`${API_BASE_URL}/category/${id}`, { method: 'DELETE', credentials: 'include' });
-                    loadCategories();
+            // New Delete Flow with OTP
+            function closeOtpModal() {
+                document.getElementById('otpModal').style.display = 'none';
+                document.getElementById('deleteOtpInput').value = '';
+                document.getElementById('otpMsg').innerText = '';
+            }
+
+            async function initiateCategoryDeletion(id) {
+                // 1. Request OTP
+                try {
+                    const res = await fetch(`${API_BASE_URL}/category/request-delete-otp/${id}`, {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        // 2. Open Modal
+                        document.getElementById('deleteTargetId').value = id;
+                        document.getElementById('deleteType').value = 'category';
+                        document.getElementById('otpModal').style.display = 'flex';
+                        document.getElementById('otpMsg').innerText = "OTP Sent!";
+                        document.getElementById('otpMsg').style.color = "green";
+                    } else {
+                        alert("Failed to send OTP: " + (data.error || "Unknown error"));
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert("Error requesting OTP");
+                }
+            }
+
+            async function confirmDeleteCategory() {
+                const id = document.getElementById('deleteTargetId').value;
+                const otp = document.getElementById('deleteOtpInput').value;
+                const msg = document.getElementById('otpMsg');
+
+                if (!otp) {
+                    msg.innerText = "Please enter OTP";
+                    msg.style.color = "red";
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`${API_BASE_URL}/category/${id}`, {
+                        method: 'DELETE',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ otp: otp })
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        closeOtpModal();
+                        loadCategories();
+                        // No alert, just refresh
+                    } else {
+                        msg.innerText = data.error || "Deletion failed";
+                        msg.style.color = "red";
+                    }
+                } catch (e) {
+                    console.error(e);
+                    msg.innerText = "Network Error";
+                    msg.style.color = "red";
+                }
+            }
+
+            async function confirmDeletion() {
+                const id = document.getElementById('deleteTargetId').value;
+                const type = document.getElementById('deleteType').value;
+                const otp = document.getElementById('deleteOtpInput').value;
+                const msg = document.getElementById('otpMsg');
+
+                if (!otp) {
+                    msg.innerText = "Please enter OTP";
+                    msg.style.color = "red";
+                    return;
+                }
+
+                let url = '';
+                let successCallback = null;
+
+                if (type === 'category') {
+                    url = `${API_BASE_URL}/category/${id}`;
+                    successCallback = loadCategories;
+                } else if (type === 'product') {
+                    url = `${API_BASE_URL}/admin/products/${id}`;
+                    successCallback = loadMyProducts;
+                }
+
+                try {
+                    const res = await fetch(url, {
+                        method: 'DELETE',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ otp: otp })
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        closeOtpModal();
+                        if (successCallback) successCallback();
+                    } else {
+                        msg.innerText = data.error || "Deletion failed";
+                        msg.style.color = "red";
+                    }
+                } catch (e) {
+                    console.error(e);
+                    msg.innerText = "Network Error";
+                    msg.style.color = "red";
                 }
             }
 
@@ -713,27 +904,7 @@
                 }
             }
 
-            async function loadInventory() {
-                try {
-                    const res = await fetch(`${API_BASE_URL}/admin/inventory`, { credentials: 'include' });
-                    const items = await res.json();
-                    const tbody = document.getElementById('inventoryList');
-                    tbody.innerHTML = '';
-                    items.forEach(i => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>${i.name}</td>
-                            <td>${i.owner_name} (${i.owner_type})</td>
-                            <td>₹${i.price}</td>
-                            <td>${i.stock !== null ? i.stock : '-'}</td>
-                             <td><span class="status-badge ${i.inventory_status === 'In Stock' ? 'approved' : 'cancelled'}">${i.inventory_status}</span></td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                } catch (e) {
-                    console.error(e);
-                }
-            }
+
 
             async function loadUsers() {
                 try {
@@ -817,7 +988,7 @@
                         <td>${p.is_featured ? '⭐' : '-'}</td>
                         <td>
                              <button onclick="editAdminProduct('${p.product_id}')">Edit</button>
-                             <button onclick="deleteAdminProduct('${p.product_id}')" style="background: #e63946;">Delete</button>
+                             <button onclick="initiateProductDeletion('${p.product_id}')" style="background: #e63946;">Delete</button>
                         </td>
                     `;
                         container.appendChild(tr);
@@ -864,10 +1035,28 @@
                 } catch (e) { console.error(e); }
             }
 
-            async function deleteAdminProduct(id) {
-                if (confirm('Are you sure needed to delete this product?')) {
-                    await fetch(`${API_BASE_URL}/admin/products/${id}`, { method: 'DELETE', credentials: 'include' });
-                    loadMyProducts();
+            async function initiateProductDeletion(id) {
+                // 1. Request OTP
+                try {
+                    const res = await fetch(`${API_BASE_URL}/admin/products/request-delete-otp/${id}`, {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        // 2. Open Modal
+                        document.getElementById('deleteTargetId').value = id;
+                        document.getElementById('deleteType').value = 'product';
+                        document.getElementById('otpModal').style.display = 'flex';
+                        document.getElementById('otpMsg').innerText = "OTP Sent!";
+                        document.getElementById('otpMsg').style.color = "green";
+                    } else {
+                        alert("Failed to send OTP: " + (data.error || "Unknown error"));
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert("Error requesting OTP");
                 }
             }
 
@@ -945,11 +1134,120 @@
 
                 } catch (err) {
                     console.error(err);
-                    alert('Failed');
                 } finally {
-                    btn.disabled = false;
-                    btn.innerText = 'Save Product';
+                    const btn = document.getElementById('btnSaveAdminProduct');
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerText = 'Save Product';
+                    }
                 }
+            }
+
+            // --- Banners Logic ---
+            async function loadBanners() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/banner`, { credentials: 'include' });
+                    const banners = await res.json();
+
+                    const tbody = document.getElementById('bannerList');
+                    tbody.innerHTML = '';
+
+                    if (banners.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No banners found</td></tr>';
+                        return;
+                    }
+
+                    banners.forEach(b => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><img src="${b.imageUrl}" style="width:100px; height:auto; background:#eee;"></td>
+                            <td>${b.title}</td>
+                            <td>${b.subtitle}</td>
+                            <td>${b.isActive ? '<span class="status-badge approved">Active</span>' : '<span class="status-badge pending">Inactive</span>'}</td>
+                            <td>
+                                <button onclick="deleteBanner('${b.id}')" style="background:#c62828; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button>
+                                ${!b.isActive ? `<button onclick="toggleBanner('${b.id}', true)" style="background:#2d6a4f; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Activate</button>` : ''}
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } catch (e) { console.error('Load banners error', e); }
+            }
+
+            function openBannerModal() {
+                document.getElementById('bannerModal').style.display = 'flex';
+                document.getElementById('bannerForm').reset();
+            }
+
+            function closeBannerModal() {
+                document.getElementById('bannerModal').style.display = 'none';
+                document.getElementById('bannerLoader').style.display = 'none';
+                document.getElementById('btnSaveBanner').disabled = false;
+            }
+
+            async function uploadBanner(e) {
+                if (e) e.preventDefault();
+                console.log("Upload logic started");
+                const form = e.target;
+                const fileInput = form.image; // name="image"
+
+                if (fileInput.files.length === 0) return alert("Select an image");
+
+                const formData = new FormData();
+                formData.append('image', fileInput.files[0]);
+                formData.append('title', form.title.value);
+                formData.append('subtitle', form.subtitle.value);
+                formData.append('removeBackground', form.removeBackground.checked);
+
+                document.getElementById('bannerLoader').style.display = 'block';
+                document.getElementById('btnSaveBanner').disabled = true;
+
+                try {
+                    const res = await fetch(`${API_BASE_URL}/banner/upload`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        body: formData
+                    });
+
+                    if (res.ok) {
+                        alert("Banner Uploaded!");
+                        closeBannerModal();
+                        loadBanners();
+                    } else {
+                        const err = await res.json();
+                        alert("Upload Failed: " + (err.error || err.message));
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert("Network Error");
+                } finally {
+                    document.getElementById('bannerLoader').style.display = 'none';
+                    document.getElementById('btnSaveBanner').disabled = false;
+                }
+            }
+
+            async function deleteBanner(id) {
+                if (!confirm("Are you sure? This cannot be undone.")) return;
+                try {
+                    const res = await fetch(`${API_BASE_URL}/banner/${id}`, {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    });
+                    if (res.ok) loadBanners();
+                    else alert("Failed to delete");
+                } catch (e) { console.error(e); }
+            }
+
+            async function toggleBanner(id, isActive) {
+                try {
+                    await fetch(`${API_BASE_URL}/banner/${id}`, {
+                        method: 'PUT',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ isActive })
+                    });
+                    loadBanners();
+                } catch (e) { console.error(e); }
             }
 
             async function loadInventory() {
