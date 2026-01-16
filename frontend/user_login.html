@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <title>Login - Heart Leaf Blooms</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap');
@@ -86,6 +87,10 @@
                 <input type="password" name="user_password" placeholder="Password" required>
             </div>
             <button type="submit">Login</button>
+            <div style="margin-top: 15px;">
+                <!-- Container for Google Button -->
+                <div id="google_btn_container"></div>
+            </div>
         </form>
         <div class="link">
             New here? <a href="user_register.html">Create Account</a>
@@ -94,7 +99,60 @@
 
     <script>
         const API_BASE_URL = window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:7071' : 'http://localhost:7071';
+
+        async function loadGoogleButton() {
+            try {
+                // Fetch Client ID from backend
+                const res = await fetch(`${API_BASE_URL}/user/google-client-id`);
+                const data = await res.json();
+
+                if (data.clientId) {
+                    google.accounts.id.initialize({
+                        client_id: data.clientId,
+                        callback: handleCredentialResponse
+                    });
+                    google.accounts.id.renderButton(
+                        document.getElementById("google_btn_container"),
+                        { theme: "outline", size: "large", width: "100%" }
+                    );
+                } else {
+                    console.error("Failed to load Google Client ID");
+                }
+            } catch (e) {
+                console.error("Error loading Google Config:", e);
+            }
+        }
+
+        async function handleCredentialResponse(response) {
+            try {
+                const res = await fetch(`${API_BASE_URL}/user/google-login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: response.credential })
+                });
+
+                if (res.ok) {
+                    const result = await res.json();
+                    localStorage.setItem('user_id', result.user.user_id);
+                    localStorage.setItem('user_name', result.user.username);
+                    if (result.token) localStorage.setItem('user_token', result.token);
+
+                    alert('Google Login Successful!');
+                    window.location.href = 'index.html';
+                } else {
+                    const err = await res.json();
+                    alert("Google Login Failed: " + (err.error || 'Unknown error'));
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Google Sign-In Error');
+            }
+        }
+
+        window.onload = loadGoogleButton;
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
+
             e.preventDefault();
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData);
